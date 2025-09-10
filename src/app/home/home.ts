@@ -6,7 +6,7 @@ import {LockerRow} from '../locker-row/locker-row';
 import {TruckRow} from '../truck-row/truck-row';
 import {StatusBar} from '../status-bar/status-bar';
 import {MoneyService} from '../service/money-service';
-import * as uuid from 'uuid';
+
 import {CurrencyPipe} from '@angular/common';
 
 @Component({
@@ -14,15 +14,13 @@ import {CurrencyPipe} from '@angular/common';
   imports: [
     LockerRow,
     TruckRow,
-    StatusBar,
-    CurrencyPipe
+    StatusBar
   ],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
 export class Home {
   private lockerService: LockerService;
-  private moneyService = inject(MoneyService);
   lockersList: Locker[] = [];
   onRoadTrucks: Truck[] = [];
   private updateLoopId: number = 0;
@@ -51,37 +49,4 @@ export class Home {
     this.lockerService.update();
   }
 
-  newLockerPrice() {
-    const basePrice = 10
-    return Math.round(basePrice * Math.pow(1.4, this.lockerService.getLockersList()().length-2));
-  }
-  newTruckPrice() {
-    const basePrice = 5
-    return Math.round(basePrice * Math.pow(1.4, this.lockerService.getAllTrucks().length-1));
-  }
-  addLocker() {
-    const price = this.newLockerPrice()
-    if (this.moneyService.getOwned() < price)
-      return;
-    this.moneyService.remove(price);
-    const newId = this.lockersList.length > 0 ? Math.max(...this.lockersList.map(l => l.id)) + 1 : 1;
-    this.lockerService.addLocker({
-      id: newId, location: "test",
-      parcels: [],
-      trucks: [],
-      slot: 1
-    });
-  }
-
-  addTruck() {
-    const price = this.newTruckPrice()
-    if (this.moneyService.getOwned() < price)
-      return;
-    this.moneyService.remove(price);
-    this.lockerService.addTruck({
-      id: uuid.v4(),
-      parcels: [],
-      slot: 3
-    });
-  }
 }

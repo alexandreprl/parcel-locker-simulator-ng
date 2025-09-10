@@ -1,9 +1,11 @@
-Parcel for {{ this.getDestinationAsString() }}
+<div class="rounded border bg-amber-800 text-white p-2">
+To: {{ this.getDestinationAsString() }}
 @if (!this.isOnDestination() && !this.isOnRoad()) {
-  <button (click)="this.transfer()">
+  <button (click)="this.transfer()" class="border rounded p-1">
     Load/Unload
   </button>
 }
 @if (this.isOnDestination()) {
   [Waiting for customer]
 }
+</div>

@@ -1,6 +1,6 @@
 import {Component, inject, signal} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
-import {LockerService, Parcel} from './locker-service';
+import {LockerService} from './locker-service';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +16,7 @@ export class App {
   ngOnInit() {
     const parcel = {
       id: "0",
-      destinationLockerId: 2,
+      destinationLockerId: 1,
     }
 
     this.lockerService.addLocker({
