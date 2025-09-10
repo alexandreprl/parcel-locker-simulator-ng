@@ -1,0 +1,23 @@
+{{ this.locker.location }} (Usage: {{ this.locker.parcels.length }}/{{ this.locker.slot }})<br/>
+<b>Slots</b>
+<ul>
+  @for (p of locker.parcels; track p.id) {
+    <li>
+      <app-parcel-row [parcel]="p"></app-parcel-row>
+    </li>
+  }
+  @for (i of [].constructor(locker.slot - locker.parcels.length); track i) {
+    <li class="empty-slot"></li>
+  }
+  <li>
+    <button (click)="this.newLockerSlot()">New slot ({{this.newSlotPrice()|currency}})</button>
+  </li>
+</ul><br/>
+<b>Trucks</b>
+<ul>
+  @for (t of locker.trucks; track t.id) {
+    <li>
+      <app-truck-row [truck]="t"></app-truck-row>
+    </li>
+  }
+</ul>

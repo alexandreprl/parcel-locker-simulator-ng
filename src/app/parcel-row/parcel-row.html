@@ -1,0 +1,9 @@
+Parcel for {{ this.getDestinationAsString() }}
+@if (!this.isOnDestination() && !this.isOnRoad()) {
+  <button (click)="this.transfer()">
+    Load/Unload
+  </button>
+}
+@if (this.isOnDestination()) {
+  [Waiting for customer]
+}

@@ -1,0 +1,31 @@
+Truck {{ this.truck.id }} (Usage: {{ this.truck.parcels.length }}/{{ this.truck.slot }})
+<ul>
+  @for (p of truck.parcels; track p.id) {
+    <li>
+      <app-parcel-row [parcel]="p"></app-parcel-row>
+    </li>
+  }
+  @for (i of [].constructor(truck.slot - truck.parcels.length); track i) {
+    <li class="empty-slot"></li>
+  }
+  <li>
+    <button (click)="this.newTruckSlot()">New slot ({{this.newSlotPrice()|currency}})</button>
+  </li>
+</ul>
+@if (!this.isOnRoad()) {
+  <!--  <button (click)="this.fillTruck()">-->
+    <!--    Fill truck-->
+    <!--  </button>-->
+    <!--  <button (click)="this.emptyTruck()">-->
+    <!--    Empty truck-->
+    <!--  </button>-->
+
+  @if (!this.isParkedTruck()) {
+    <button (click)="this.parkTruck()">Park truck</button>
+  }
+  @for (l of this.getLockersList(); track l.id) {
+    <button (click)="this.goto(l)">
+      Go to {{ l.location }}
+    </button>
+  }
+}
