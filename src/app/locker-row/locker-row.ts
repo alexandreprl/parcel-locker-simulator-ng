@@ -3,14 +3,15 @@ import {Locker} from '../locker-service';
 import {ParcelRow} from '../parcel-row/parcel-row';
 import {TruckRow} from '../truck-row/truck-row';
 import {MoneyService} from '../service/money-service';
-import {CurrencyPipe} from '@angular/common';
+import {CurrencyPipe, DecimalPipe} from '@angular/common';
 
 @Component({
   selector: 'app-locker-row',
   imports: [
     ParcelRow,
     TruckRow,
-    CurrencyPipe
+    CurrencyPipe,
+    DecimalPipe
   ],
   templateUrl: './locker-row.html',
   styleUrl: './locker-row.css'
@@ -22,7 +23,7 @@ export class LockerRow {
 
   }
   newSlotPrice() {
-    const basePrice = 2
+    const basePrice = 1
     return Math.round(basePrice * Math.pow(1.4, this.locker.slot-1));
   }
   newLockerSlot() {

@@ -1,0 +1,27 @@
+.map {
+  position: relative;
+  width: 100%;               /* take full parent width */
+  aspect-ratio: 3 / 2;        /* lock ratio to 3:2 (same as 600x400) */
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+}
+.truck {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  /*background-color: red; !* truck marker *!*/
+  transform: translate(200%, 50%); /* center the square on the position */
+  /*border: 1px solid #333;*/
+  pointer-events: none;
+
+}
+.locker {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  /*background-color: blue; !* truck marker *!*/
+  /*transform: translate(-50%, -50%); !* center the square on the position *!*/
+  /*border: 1px solid #333;*/
+  /*border-radius: 50%;*/
+  cursor: pointer;
+}

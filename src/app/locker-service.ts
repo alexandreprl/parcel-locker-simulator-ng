@@ -2,26 +2,63 @@ import {inject, Injectable, signal} from '@angular/core';
 import {MoneyService} from './service/money-service';
 import * as uuid from 'uuid';
 
+export class Position {
+  x: number;
+  y: number;
+  static ZERO: Position = new Position(0, 0);
+
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+
+  toString(): string {
+    return `${this.x} ${this.y}`;
+  }
+
+  directionTo(destination: Position): Position {
+    return new Position(destination.x - this.x, destination.y - this.y).normalize();
+  }
+
+  normalize(): Position {
+    const length = Math.hypot(this.x, this.y); // same as sqrt(x^2 + y^2)
+    if (length === 0) {
+      return new Position(0, 0); // can't normalize a zero vector
+    }
+    return new Position(this.x / length, this.y / length);
+  }
+
+  distanceTo(other: Position): number {
+    return Math.hypot(other.x - this.x, other.y - this.y);
+  }
+
+  add(x: number, y: number) {
+    return new Position(this.x + x, this.y + y);
+  }
+}
+
 export interface Locker {
 
-  id: number;
+  id: string;
+  warehouse?: boolean;
   location: string;
   parcels: Parcel[];
   trucks: Truck[];
   slot: number;
+  position: Position;
 }
 
 export interface Parcel {
   id: string;
-  destinationLockerId: number
+  destinationLockerId: string
 }
 
 export interface Truck {
-  progress?: number;
   destination?: Locker;
   id: string;
   parcels: Parcel[];
   slot: number;
+  position: Position;
 }
 
 @Injectable({
@@ -32,10 +69,28 @@ export class LockerService {
   private moneyService = inject(MoneyService)
   private onRoadTrucks = signal<Truck[]>([]);
   private time = signal<number>(0);
-
+  private selectedLocker = signal<Locker | undefined>(undefined);
+  private availableLockers: Locker[] = [
+    "Akikawa", "Minamishi", "Takayama", "Fujisaki", "Harumura", "Kitanaka", "Yoshihama", "Okutani", "Nishikawa", "Morishima",
+    "Kazehara", "Tsubakida", "Hoshizaki", "Nakayori", "Akimoto", "Tokihama", "Midoriyama", "Shirosaki", "Tanabe", "Uenohara",
+    "Kumizawa", "Hayashida", "Nogizawa", "Sakuragi", "Kawamura", "Isogawa", "Mashiro", "Takemura", "Hinokawa", "Yamashiro",
+    "Oshimori", "Hanazaki", "Takamori", "Shirahata", "Furumori", "Nagisawa", "Okazaki", "Matsuhara", "Kitano", "Hoshimura",
+    "Arakawa", "Midorikawa", "Aokita", "Shigemura", "Nanahara", "Tokimori", "Haruzawa", "Mizushima", "Yamanobe", "Kanezawa"
+  ].map((city, i) => ({
+    id: uuid.v4(),
+    location: city,
+    parcels: [],
+    trucks: [],
+    slot: 1,
+    position: new Position(Math.random(), Math.random())
+  }));
 
   getLockersList() {
     return this.lockersList;
+  }
+
+  getSelectedLocker(): Locker | undefined {
+    return this.selectedLocker();
   }
 
   getOnRoadTrucks() {
@@ -84,13 +139,17 @@ export class LockerService {
 
   goto(truck: Truck, target: Locker) {
     this.lockersList.update((lockers: Locker[]) => {
+      let lockerSource = undefined
       for (let i = 0; i < lockers.length; i++) {
         if (lockers[i].trucks.includes(truck)) {
           lockers[i].trucks = lockers[i].trucks.filter(t => t !== truck);
+          lockerSource = lockers[i];
         }
       }
+
       truck.destination = target;
-      truck.progress = 0;
+      if (lockerSource !== undefined)
+        truck.position = lockerSource.position;
       this.onRoadTrucks.update((trucks: Truck[]) => {
         trucks.push(truck);
         return trucks;
@@ -122,18 +181,24 @@ export class LockerService {
 
   private moveTrucks() {
     for (const truck of this.onRoadTrucks()) {
-      truck.progress = (truck.progress || 0) + 10;
-      if (truck.progress >= 100) {
-        this.lockersList.update((lockers: Locker[]) => {
+      if (truck.destination !== undefined) {
+        const dir = truck.position.directionTo(truck.destination.position);
+        const speed = 0.001;
+        truck.position = truck.position.add(dir.x * speed, dir.y * speed);
 
-          this.onRoadTrucks.update((trucks: Truck[]) => {
-            return trucks.filter(t => t.id != truck.id);
-          });
-          truck.destination?.trucks.push(truck);
+        if (truck.position.distanceTo(truck.destination.position) < speed) {
+          truck.position = truck.destination.position
+          this.lockersList.update((lockers: Locker[]) => {
 
-          return lockers
-        })
+            this.onRoadTrucks.update((trucks: Truck[]) => {
+              return trucks.filter(t => t.id != truck.id);
+            });
+            truck.destination?.trucks.push(truck);
 
+            return lockers
+          })
+
+        }
       }
     }
   }
@@ -144,6 +209,7 @@ export class LockerService {
     const lockerTruck = truck != undefined ? this.getLockerOfTruck(truck) : undefined
     if (locker != undefined && locker.trucks.length > 0 && locker.trucks[0].parcels.length < locker.trucks[0].slot) {
       const truck = locker.trucks[0];
+      locker.parcels = locker.parcels.filter(p => p != parcel);
       truck.parcels.push(parcel);
       locker.parcels = locker.parcels.filter(p => p != parcel);
     } else if (truck != undefined && lockerTruck != undefined && lockerTruck.parcels.length < lockerTruck.slot) {
@@ -161,7 +227,7 @@ export class LockerService {
     return undefined;
   }
 
-  private getTruckOfParcel(parcel: Parcel) {
+  public getTruckOfParcel(parcel: Parcel) {
     for (const truck of this.getAllTrucks()) {
       if (truck.parcels.includes(parcel)) {
         return truck;
@@ -190,7 +256,7 @@ export class LockerService {
   private checkSuccessfulParcels() {
     for (const locker of this.lockersList()) {
       for (const parcel of locker.parcels) {
-        if (parcel.destinationLockerId == locker.id && Math.random() * 24 < 1) {
+        if (parcel.destinationLockerId == locker.id && Math.random() * 1 < 0.1) {
           this.moneyService.add(1)
           locker.parcels = locker.parcels.filter(p => p != parcel);
         }
@@ -200,22 +266,26 @@ export class LockerService {
 
   private addNewParcels() {
     this.lockersList.update((lockersList: Locker[]) => {
-      for (const locker of lockersList) {
-        let maxNewParcelForLocker = locker.slot - locker.parcels.length;
-
-        while (maxNewParcelForLocker > 0) {
-          if (Math.random() * 24 < 1) {
-            const newParcel = {
-              id: uuid.v4(),
-              destinationLockerId: this.getRandomLockerExcept(locker).id,
+        for (const locker of lockersList) {
+          if (!locker.warehouse) {
+            let maxNewParcelForLocker = locker.slot - locker.parcels.length;
+            if (locker.trucks.length == 0) {
+              while (maxNewParcelForLocker > 0) {
+                if (Math.random() * 6 < 0.1) {
+                  const newParcel = {
+                    id: uuid.v4(),
+                    destinationLockerId: this.getRandomLockerExcept(locker).id,
+                  }
+                  locker.parcels.push(newParcel)
+                }
+                maxNewParcelForLocker--;
+              }
             }
-            locker.parcels.push(newParcel)
           }
-          maxNewParcelForLocker--;
         }
+        return lockersList;
       }
-      return lockersList;
-    })
+    )
   }
 
   private getRandomLockerExcept(locker: Locker) {
@@ -223,11 +293,14 @@ export class LockerService {
     let l = this.lockersList()[0]
     do {
       l = ll[Math.floor(Math.random() * ll.length)]
-    } while (l == locker);
+    } while (l == locker || l.warehouse);
     return l
   }
 
-  getDestinationOfParcel(parcel: Parcel) {
+  getDestinationOfParcel(parcel
+                         :
+                         Parcel
+  ) {
     for (const locker of this.lockersList()) {
       if (locker.id == parcel.destinationLockerId) {
         return locker
@@ -236,7 +309,10 @@ export class LockerService {
     return undefined
   }
 
-  addTruck(truck: Truck) {
+  addTruck(truck
+           :
+           Truck
+  ) {
     this.lockersList.update(ll => {
       if (ll.length > 0)
         ll[0].trucks.push(truck)
@@ -244,7 +320,10 @@ export class LockerService {
     })
   }
 
-  getOnRoadTrucksOfParcel(parcel: Parcel) {
+  getOnRoadTrucksOfParcel(parcel
+                          :
+                          Parcel
+  ) {
     for (const truck of this.onRoadTrucks()) {
       if (truck.parcels.includes(parcel)) {
         return truck;
@@ -264,5 +343,16 @@ export class LockerService {
       }
     }
     return trucks
+  }
+
+  setSelectedLocker(l
+                    :
+                    Locker
+  ) {
+    this.selectedLocker.set(l)
+  }
+
+  popAvailableLocker() {
+    return this.availableLockers.pop();
   }
 }

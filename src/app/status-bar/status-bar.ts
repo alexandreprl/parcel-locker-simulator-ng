@@ -1,7 +1,7 @@
 import {Component, effect, inject} from '@angular/core';
 import {MoneyService} from '../service/money-service';
 import {CurrencyPipe} from '@angular/common';
-import {LockerService} from '../locker-service';
+import {Locker, LockerService, Position} from '../locker-service';
 import * as uuid from 'uuid';
 
 @Component({
@@ -24,12 +24,12 @@ export class StatusBar {
   }
 
   newLockerPrice() {
-    const basePrice = 10
+    const basePrice = 4
     return Math.round(basePrice * Math.pow(1.4, this.lockerService.getLockersList()().length - 2));
   }
 
   newTruckPrice() {
-    const basePrice = 5
+    const basePrice = 3
     return Math.round(basePrice * Math.pow(1.4, this.lockerService.getAllTrucks().length - 1));
   }
 
@@ -37,15 +37,12 @@ export class StatusBar {
     const price = this.newLockerPrice()
     if (this.moneyService.getOwned() < price)
       return;
+
+    const newLocker: Locker | undefined = this.lockerService.popAvailableLocker()
+    if (newLocker == undefined)
+      return;
     this.moneyService.remove(price);
-    const lockersList = this.lockerService.getLockersList()()
-    const newId = lockersList.length > 0 ? Math.max(...lockersList.map(l => l.id)) + 1 : 1;
-    this.lockerService.addLocker({
-      id: newId, location: "test",
-      parcels: [],
-      trucks: [],
-      slot: 1
-    });
+    this.lockerService.addLocker(newLocker);
   }
 
   addTruck() {
@@ -54,9 +51,14 @@ export class StatusBar {
       return;
     this.moneyService.remove(price);
     this.lockerService.addTruck({
+      position: Position.ZERO,
       id: uuid.v4(),
       parcels: [],
       slot: 3
     });
+  }
+
+  cheatAddMoney() {
+    this.moneyService.add(1000)
   }
 }

@@ -8,13 +8,14 @@ import {StatusBar} from '../status-bar/status-bar';
 import {MoneyService} from '../service/money-service';
 
 import {CurrencyPipe} from '@angular/common';
+import {Map} from '../map/map';
 
 @Component({
   selector: 'app-home',
   imports: [
     LockerRow,
-    TruckRow,
-    StatusBar
+    StatusBar,
+    Map
   ],
   templateUrl: './home.html',
   styleUrl: './home.css'
@@ -22,21 +23,25 @@ import {CurrencyPipe} from '@angular/common';
 export class Home {
   private lockerService: LockerService;
   lockersList: Locker[] = [];
+  allTrucks: Truck[] = [];
   onRoadTrucks: Truck[] = [];
   private updateLoopId: number = 0;
+  selectedLocker: Locker | undefined;
 
   constructor() {
     this.lockerService = inject(LockerService);
     effect(() => {
       this.lockersList = this.lockerService.getLockersList()();
       this.onRoadTrucks = this.lockerService.getOnRoadTrucks()();
+      this.allTrucks = this.lockerService.getAllTrucks();
+      this.selectedLocker = this.lockerService.getSelectedLocker()
     });
   }
 
   ngOnInit() {
     this.updateLoopId = setInterval(() => {
       this.update()
-    }, 1000)
+    }, 100)
   }
 
   ngOnDestroy() {

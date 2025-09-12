@@ -2,13 +2,14 @@ import {Component, computed, inject, Input, Signal} from '@angular/core';
 import {Locker, LockerService, Truck} from "../locker-service";
 import {ParcelRow} from '../parcel-row/parcel-row';
 import {MoneyService} from '../service/money-service';
-import {CurrencyPipe} from '@angular/common';
+import {CurrencyPipe, DecimalPipe} from '@angular/common';
 
 @Component({
   selector: 'app-truck-row',
   imports: [
     ParcelRow,
-    CurrencyPipe
+    CurrencyPipe,
+    DecimalPipe
   ],
   templateUrl: './truck-row.html',
   styleUrl: './truck-row.css'
@@ -50,7 +51,7 @@ export class TruckRow {
   }
 
   newSlotPrice() {
-    const basePrice = 2
+    const basePrice = 1
     return Math.round(basePrice * Math.pow(1.4, this.truck.slot-1));
   }
 
@@ -60,5 +61,9 @@ export class TruckRow {
       return
     this.moneyService.remove(price)
     this.truck.slot++;
+  }
+
+  dropContent() {
+    this.truck.parcels = []
   }
 }

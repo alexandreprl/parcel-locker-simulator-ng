@@ -11,6 +11,11 @@ export class ParcelRow {
   @Input() parcel!: Parcel;
   private lockerService = inject(LockerService);
   private destination = computed(() => this.lockerService.getDestinationOfParcel(this.parcel))
+  private onDestination = computed(() => {
+    return this.lockerService.getLockerOfParcel(this.parcel) == this.getDestination();
+  })
+
+  isOnDestination = () => this.onDestination();
 
   transfer() {
     this.lockerService.transfer(this.parcel)
@@ -27,11 +32,14 @@ export class ParcelRow {
     return d;
   }
 
-  isOnDestination() {
-    return (this.lockerService.getLockerOfParcel(this.parcel) == this.getDestination())
-  }
-
   isOnRoad() {
     return this.lockerService.getOnRoadTrucksOfParcel(this.parcel) != undefined
+  }
+
+  isOnTruckOnDestination() {
+    const truckOfParcel = this.lockerService.getTruckOfParcel(this.parcel);
+    if (truckOfParcel == undefined)
+      return false;
+    return this.lockerService.getLockerOfTruck(truckOfParcel) == this.getDestination();
   }
 }

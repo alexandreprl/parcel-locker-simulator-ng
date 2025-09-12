@@ -1,5 +1,6 @@
 <div class="border">
-  {{ this.locker.location }} (Usage: {{ this.locker.parcels.length }}/{{ this.locker.slot }})<br/>
+  {{ this.locker.location }} (Usage: {{ this.locker.parcels.length }}/{{ this.locker.slot }})
+  ({{ this.locker.position.x| number : '1.2-2' }}, {{ this.locker.position.y| number : '1.2-2' }})<br/>
   <div class="flex">
     <div class="flex-1">
       <b>Slots</b>
@@ -21,14 +22,14 @@
       </ul>
     </div>
     <div class="flex-1">
-      <b>Trucks</b>
-      <ul>
-        @for (t of locker.trucks; track t.id) {
-          <li>
-            <app-truck-row [truck]="t"></app-truck-row>
-          </li>
+      @if (locker.trucks.length > 0) {
+        <app-truck-row [truck]="locker.trucks[0]"></app-truck-row>
+        @if (locker.trucks.length > 1) {
+          <div>
+            {{ locker.trucks.length - 1 }} other trucks waiting
+          </div>
         }
-      </ul>
+      }
     </div>
   </div>
 </div>
