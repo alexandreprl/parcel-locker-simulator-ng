@@ -25,7 +25,7 @@ export class TruckRow {
   }
 
   getLockersList(): Locker[] {
-    let l: Locker | null = this.lockerService.getLockerOfTruck(this.truck);
+    let l: Locker | undefined = this.lockerService.getLockerOfTruck(this.truck);
 
     let ll: Locker[] = this.lockerService.getLockersList()()
     return ll.filter(i => i != l)
@@ -65,5 +65,9 @@ export class TruckRow {
 
   dropContent() {
     this.truck.parcels = []
+  }
+
+  deliver() {
+    this.lockerService.deliver(this.truck)
   }
 }

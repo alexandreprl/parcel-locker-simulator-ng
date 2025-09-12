@@ -29,4 +29,6 @@ export class Map {
 
     this.lockerService.setSelectedLocker(l)
   }
+
+  protected readonly Math = Math;
 }

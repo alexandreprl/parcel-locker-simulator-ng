@@ -159,13 +159,13 @@ export class LockerService {
     })
   }
 
-  getLockerOfTruck(truck: Truck): Locker | null {
+  getLockerOfTruck(truck: Truck): Locker | undefined {
     for (const locker of this.lockersList()) {
       if (locker.trucks.includes(truck)) {
         return locker;
       }
     }
-    return null;
+    return undefined;
   }
 
   isOnRoad(truck: Truck) {
@@ -269,7 +269,7 @@ export class LockerService {
         for (const locker of lockersList) {
           if (!locker.warehouse) {
             let maxNewParcelForLocker = locker.slot - locker.parcels.length;
-            if (locker.trucks.length == 0) {
+            // if (locker.trucks.length == 0) {
               while (maxNewParcelForLocker > 0) {
                 if (Math.random() * 6 < 0.1) {
                   const newParcel = {
@@ -280,7 +280,7 @@ export class LockerService {
                 }
                 maxNewParcelForLocker--;
               }
-            }
+            // }
           }
         }
         return lockersList;
@@ -354,5 +354,32 @@ export class LockerService {
 
   popAvailableLocker() {
     return this.availableLockers.pop();
+  }
+
+  deliver(truck: Truck) {
+    const locker = this.getLockerOfTruck(truck);
+    if (locker == undefined)
+      return;
+
+    for (const parcel of truck.parcels) {
+      if (parcel.destinationLockerId == locker.id) {
+
+        if (locker.parcels.length < locker.slot) {
+          locker.parcels.push(parcel)
+          truck.parcels = truck.parcels.filter(p => p != parcel);
+        } else {
+          const replacementParcels = locker.parcels.filter(p => p.destinationLockerId != locker.id);
+          if (replacementParcels.length > 0) {
+            const rp = replacementParcels[0];
+            locker.parcels.push(parcel)
+            truck.parcels = truck.parcels.filter(p => p != parcel)
+            truck.parcels.push(rp);
+            locker.parcels = locker.parcels.filter(p => p != rp);
+
+          }
+        }
+
+      }
+    }
   }
 }

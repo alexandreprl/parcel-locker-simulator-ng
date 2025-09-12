@@ -1,4 +1,4 @@
-<div class="rounded border bg-amber-800 text-white p-2 flex flex-row items-center w-full justify-between">
+<button (click)="this.transfer()" class="cursor-pointer hover:bg-amber-900 rounded border bg-amber-800 text-white p-2 flex flex-row items-center w-full justify-between">
   <span>
   @if (this.isOnTruckOnDestination()) {
     To: <strong>{{ this.getDestinationAsString() }}</strong>
@@ -7,7 +7,7 @@
   }
     </span>
   @if (!this.isOnDestination() && !this.isOnRoad()) {
-    <button (click)="this.transfer()" class="ml-2 border rounded p-1">
+    <button class="ml-2 border rounded p-1">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
         <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
       </svg>
@@ -17,4 +17,4 @@
   @if (this.isOnDestination()) {
     [Waiting for customer]
   }
-</div>
+</button>

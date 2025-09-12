@@ -1,13 +1,15 @@
-@let paddingPercent = 10;
+@let paddingPercent = 20;
+@let maxWH = Math.max(this.maxX() - this.minX(),this.maxY() - this.minY());
 <div class="map">
   @for (l of lockersList; track l.id) {
     @let
-    xPercent = paddingPercent + (100 - paddingPercent * 2) * (l.position.x - this.minX()) / (this.maxX() - this.minX());
+    xPercent = paddingPercent + (100 - paddingPercent * 2) * (l.position.x - this.minX()) / (maxWH);
     @let
-    yPercent = paddingPercent + (100 - paddingPercent * 2) * (l.position.y - this.minY()) / (this.maxY() - this.minY());
+    yPercent = paddingPercent + (100 - paddingPercent * 2) * (l.position.y - this.minY()) / (maxWH);
 
     <div
       class="locker"
+      [style.z-index]="yPercent"
       (click)="this.selectLocker(l)"
       [style.left.%]="xPercent"
       [style.top.%]="yPercent"
@@ -41,11 +43,12 @@
   }
   @for (t of allTrucks; track t.id) {
     @let
-    xPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.x - this.minX()) / (this.maxX() - this.minX());
+    xPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.x - this.minX()) / (maxWH);
     @let
-    yPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.y - this.minY()) / (this.maxY() - this.minY());
+    yPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.y - this.minY()) / (maxWH);
     <!--    <div>-->
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" class="size-6 truck"
+         [style.z-index]="yPercent"
          [style.left.%]="xPercent"
          [style.top.%]="yPercent">
       <path

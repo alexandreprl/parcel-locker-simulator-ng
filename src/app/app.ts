@@ -20,12 +20,12 @@ export class App {
       id: "0",
       warehouse: true,
       location: 'Warehouse',
-      position: new Position(0, 0),
+      position: new Position(0.5, 0.5),
       slot: 3, parcels: [],
       trucks: [
         {
           id: "0",
-          position: new Position(0, 0),
+          position: new Position(0.5, 0.5),
           parcels: [],
           slot: 3
         }
