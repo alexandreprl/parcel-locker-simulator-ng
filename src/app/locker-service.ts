@@ -49,7 +49,7 @@ export interface Locker {
 }
 
 export interface Parcel {
-  id: string;
+  id: number;
   origin: Locker | undefined,
   destination: Locker | undefined,
 }
@@ -64,54 +64,12 @@ export interface Truck {
 }
 
 export const colors = [
-  "#D4A373", // warm sand
-  "#E6B89C", // peach cream
-  "#C38E70", // cocoa brown
-  "#A97155", // caramel
-  "#FFE8D6", // cream
-  "#F5CAC3", // soft blush
-  "#EDBBB4", // muted rose
-  "#FFDDD2", // warm apricot
-  "#FFD6A5", // peachy glow
-  "#FFB5A7", // dusty pink
-  "#E5989B", // vintage rose
-  "#B5838D", // mauve taupe
-  "#6D6875", // cozy plum
-  "#7E6A9F", // lavender dusk
-  "#C9ADA7", // misty lilac
-  "#DDBEA9", // latte beige
-  "#B08968", // cinnamon
-  "#A98467", // earthy mocha
-  "#9C6644", // spiced brown
-  "#CB997E", // rustic clay
-  "#DDC2A3", // almond cream
-  "#E3D5CA", // oatmeal
-  "#F8EDEB", // pale pink
-  "#EDE7E3", // linen
-  "#DFD3C3", // warm parchment
-  "#F4F1DE", // soft ivory
-  "#FAF3E0", // vanilla
-  "#EDE6DB", // eggshell
-  "#DAD7CD", // soft moss
-  "#A3B18A", // sage green
-  "#588157", // cozy pine
-  "#3A5A40", // forest shade
-  "#344E41", // deep pine
-  "#6A994E", // mossy leaf
-  "#9BC1BC", // mint mist
-  "#A5C9CA", // dusty aqua
-  "#B5D2CB", // pale seafoam
-  "#CCE2CB", // faded green
-  "#AEC5EB", // muted sky
-  "#9FA6A7", // soft gray
-  "#CED4DA", // cloudy mist
-  "#ADB5BD", // stone gray
-  "#495057", // charcoal cozy
-  "#6C757D", // warm slate
-  "#343A40", // deep gray
-  "#432818", // dark cocoa
-  "#99582A", // toffee
-  "#FFE5B4", // soft apricot
+"#46425e",
+"#15788c",
+"#00b9be",
+"#ffeecc",
+"#ffb0a3",
+"#ff6973"
 ];
 
 @Injectable({
@@ -133,6 +91,7 @@ export class LockerService {
     }
     return trucks
   })
+  private lastParcelId: number = 0;
 
   getAllTrucks() {
     return this.allTrucks();
@@ -254,7 +213,7 @@ export class LockerService {
     for (const truck of this.onRoadTrucks()) {
       if (truck.destination !== undefined) {
         const dir = truck.position.directionTo(truck.destination.position);
-        const speed = 0.001;
+        const speed = 0.002;
         truck.position = truck.position.add(dir.x * speed, dir.y * speed);
 
         if (truck.position.distanceTo(truck.destination.position) < speed) {
@@ -278,14 +237,26 @@ export class LockerService {
     const locker = this.getLockerOfParcel(parcel);
     const truck = this.getTruckOfParcel(parcel);
     const lockerTruck = truck != undefined ? this.getLockerOfTruck(truck) : undefined
+
     if (locker != undefined && locker.trucks.length > 0 && locker.trucks[0].parcels.length < locker.trucks[0].slot) {
+      // from locker to truck
       const truck = locker.trucks[0];
       locker.parcels = locker.parcels.filter(p => p != parcel);
       truck.parcels.push(parcel);
-      locker.parcels = locker.parcels.filter(p => p != parcel);
     } else if (truck != undefined && lockerTruck != undefined && lockerTruck.parcels.length < lockerTruck.slot) {
+      // from truck to locker
       truck.parcels = truck.parcels.filter(p => p != parcel);
       lockerTruck.parcels.push(parcel);
+    } else if (truck != undefined && lockerTruck != undefined && lockerTruck.parcels.length == lockerTruck.slot && parcel.destination == lockerTruck) {
+      const replacementParcels = lockerTruck.parcels.filter(p => p.destination != locker);
+      if (replacementParcels.length > 0) {
+        const rp = replacementParcels[0];
+        lockerTruck.parcels.push(parcel)
+        truck.parcels = truck.parcels.filter(p => p != parcel)
+        truck.parcels.push(rp);
+        lockerTruck.parcels = lockerTruck.parcels.filter(p => p != rp);
+
+      }
     }
   }
 
@@ -327,9 +298,9 @@ export class LockerService {
   private checkSuccessfulParcels() {
     for (const locker of this.lockersList()) {
       for (const parcel of locker.parcels) {
-        if (parcel.destination == locker && Math.random() * 1 < 0.1) {
+        if (parcel.destination == locker && Math.random() * 6 < 0.1) {
           const distance = parcel.origin?.position.distanceTo(parcel.destination.position);
-          const gain = distance == undefined ? 1 : Math.max(1, distance / 0.3)
+          const gain = Math.round(distance == undefined ? 1 : Math.max(1, distance / 0.3))
           this.moneyService.add(gain)
           locker.parcels = locker.parcels.filter(p => p != parcel);
         }
@@ -346,7 +317,7 @@ export class LockerService {
             while (maxNewParcelForLocker > 0) {
               if (Math.random() * 6 < 0.1) {
                 const newParcel = {
-                  id: uuid.v4(),
+                  id: this.popNewParcelId(),
                   origin: locker,
                   destination: this.getRandomLockerExcept(locker),
                 }
@@ -428,5 +399,10 @@ export class LockerService {
 
       }
     }
+  }
+
+  popNewParcelId() {
+    this.lastParcelId++;
+    return this.lastParcelId;
   }
 }

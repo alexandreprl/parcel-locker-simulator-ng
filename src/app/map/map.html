@@ -2,6 +2,7 @@
 @let maxWH =  Math.max(this.maxX() - this.minX(), this.maxY() - this.minY());
 
 
+<div class="panel map-panel">
 <div class="map">
   @for (l of lockersList; track l.id) {
     @let xPercent = paddingPercent + (100 - paddingPercent * 2) * (l.position.x - this.minX()) / (maxWH);
@@ -17,7 +18,7 @@
     >
       @if (l.warehouse) {
 
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 icon">
           <path fill-rule="evenodd"
                 d="M4.5 2.25a.75.75 0 0 0 0 1.5v16.5h-.75a.75.75 0 0 0 0 1.5h16.5a.75.75 0 0 0 0-1.5h-.75V3.75a.75.75 0 0 0 0-1.5h-15ZM9 6a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5H9Zm-.75 3.75A.75.75 0 0 1 9 9h1.5a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75ZM9 12a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5H9Zm3.75-5.25A.75.75 0 0 1 13.5 6H15a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75ZM13.5 9a.75.75 0 0 0 0 1.5H15A.75.75 0 0 0 15 9h-1.5Zm-.75 3.75a.75.75 0 0 1 .75-.75H15a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75ZM9 19.5v-2.25a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 9 19.5Z"
                 clip-rule="evenodd"/>
@@ -30,7 +31,7 @@
         </svg>
 
       }
-      <div class="relative -translate-x-1/2 translate-y-0 text-nowrap block w-20">
+      <div class="legend relative -translate-x-1/2 ml-2 translate-y-0 text-nowrap block w-fit">
         @if (this.selectedLocker == l) {
           <span class="font-bold">
           {{ l.location }} [{{ l.parcels.length }}/{{ l.slot }}]
@@ -42,7 +43,7 @@
     </div>
   }
   @for (t of allTrucks; track t.id) {
-    @let xPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.x - this.minY()) / (maxWH);
+    @let xPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.x - this.minX()) / (maxWH);
     @let yPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.y - this.minY()) / (maxWH);
     <!--    <div>-->
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="size-6 truck bg-white border"
@@ -58,8 +59,9 @@
     </svg>
 
 
-    <!--    </div>-->
+<!--        </div>-->
   }
 
 
+</div>
 </div>

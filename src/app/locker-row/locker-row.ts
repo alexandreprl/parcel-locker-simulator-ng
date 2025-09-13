@@ -3,7 +3,7 @@ import {colors, Locker, LockerService} from '../locker-service';
 import {ParcelRow} from '../parcel-row/parcel-row';
 import {TruckRow} from '../truck-row/truck-row';
 import {MoneyService} from '../service/money-service';
-import {CurrencyPipe, DecimalPipe} from '@angular/common';
+import {CurrencyPipe, DecimalPipe, UpperCasePipe} from '@angular/common';
 import {firstWarehousePosition} from '../app';
 import * as uuid from 'uuid';
 
@@ -13,7 +13,7 @@ import * as uuid from 'uuid';
     ParcelRow,
     TruckRow,
     CurrencyPipe,
-    DecimalPipe
+    UpperCasePipe,
   ],
   templateUrl: './locker-row.html',
   styleUrl: './locker-row.css'

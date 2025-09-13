@@ -1,27 +1,25 @@
-<div class="border">
-  {{ this.locker.location }} (Usage: {{ this.locker.parcels.length }}/{{ this.locker.slot }})
-  ({{ this.locker.position.x| number : '1.2-2' }}, {{ this.locker.position.y| number : '1.2-2' }})<br/>
-  <div class="flex">
+<div class="panel locker-panel">
+  <div class="header">{{ this.locker.location|uppercase }}</div>
+  <div class="flex space-x-2">
     <div class="flex-1">
-      <b>Slots</b>
-      <ul>
+      <div class="flex flex-col space-y-1 panel slot-panel">
         @for (p of locker.parcels; track p.id) {
-          <li class="slot border min-w-60 min-h-10 inline-block">
+          <div class="slot">
             <app-parcel-row [parcel]="p"></app-parcel-row>
-          </li>
+          </div>
         }
         @for (i of [].constructor(locker.slot - locker.parcels.length); track i) {
-          <li class="slot border border-dashed min-w-60 min-h-10 inline-block"></li>
+          <div class="slot border border-dashed inline-block"></div>
         }
-        <li>
-          <button class="slot hover:border-solid cursor-pointer border border-dashed min-w-60 min-h-10 inline-block" (click)="this.newLockerSlot()">New
-            slot
-            ({{ this.newSlotPrice()|currency }})
-          </button>
-        </li>
-      </ul>
+        <button class="slot hover:border-solid cursor-pointer border border-dashed w-full inline-block"
+                (click)="this.newLockerSlot()">New
+          slot
+          ({{ this.newSlotPrice()|currency }})
+        </button>
+
+      </div>
     </div>
-    <div class="flex-1">
+    <div class="flex-1 flex flex-col items-stretch">
       @if (locker.trucks.length > 0) {
         <app-truck-row [truck]="locker.trucks[0]"></app-truck-row>
         @if (locker.trucks.length > 1) {
@@ -30,12 +28,12 @@
           </div>
         }
       }
-@if (locker.warehouse) {
-      <button
-        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-        (click)="this.addTruck()">Buy Truck ({{ this.newTruckPrice()|currency }})
-      </button>
-}
+      @if (locker.warehouse) {
+        <button
+          class="button buy-truck-button"
+          (click)="this.addTruck()">Buy Truck ({{ this.newTruckPrice()|currency }})
+        </button>
+      }
     </div>
   </div>
 </div>

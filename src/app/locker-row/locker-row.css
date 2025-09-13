@@ -1,0 +1,10 @@
+.locker-panel {
+  background-color: var(--color2);
+  color: var(--color4);
+}
+.buy-truck-button {
+  background-color: var(--color1);
+}
+.buy-truck-button:hover {
+  background-color: var(--color2);
+}

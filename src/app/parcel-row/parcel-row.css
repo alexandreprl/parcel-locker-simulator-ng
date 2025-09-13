@@ -1,0 +1,7 @@
+.parcel-row {
+  width: 100%;
+  background-color: var(--color6);
+  color: var(--color1);
+  border: 1px solid rgba(0,0,0,0.5);
+  padding:0.2em;
+}

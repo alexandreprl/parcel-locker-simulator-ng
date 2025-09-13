@@ -35,12 +35,13 @@ export class App {
       ]
     });
     const parcel:Parcel = {
-      id: "0",
+      id: this.lockerService.popNewParcelId(),
       origin: undefined,
       destination: undefined,
     }
     const locker1 = {
-      id: "1", location: 'Akikawa',
+      id: "1",
+      location: 'Akikawa',
       parcels: [parcel],
       position: new Position(0.05, 0.2),
       slot: 1,

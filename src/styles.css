@@ -1,2 +1,57 @@
 @import "tailwindcss";
 /* You can add global styles to this file, and also import other style files */
+
+:root {
+  --color1: #46425e;
+  --color2: #15788c;
+  --color3: #00b9be;
+  --color4: #ffeecc;
+  --color5: #ffb0a3;
+  --color6: #ff6973;
+  color: var(--color1);
+}
+
+html, body {
+  background-color: #121118;
+  padding: 0.2em;
+}
+
+.panel {
+  padding: 0.5em;
+  border: solid 3px rgba(0, 0, 0, 0.5);
+}
+.header {
+  padding: 0.5em;
+  background-color: rgba(0, 0, 0, 0.5);
+  margin-bottom: 0.5em;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.button {
+  padding: 0.5em;
+  border: solid 2px rgba(0, 0, 0, 0.5);
+  border-radius: 0.5em;
+  background-color: var(--color2);
+  color: var(--color4);
+  cursor:pointer ;
+}
+.button:hover {
+  background-color: var(--color3);
+}
+.button2 {
+  padding: 0.5em;
+  border: solid 2px rgba(0, 0, 0, 0.5);
+  border-radius: 0.2em;
+  background-color: var(--color1);
+  color: var(--color4);
+  cursor:pointer ;
+  font-size: 0.9em;
+}
+.button2:hover {
+  background-color: var(--color2);
+}
+
+.slot {
+  min-height:2em;
+}
