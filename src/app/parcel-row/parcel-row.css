@@ -1,7 +1,21 @@
 .parcel-row {
   width: 100%;
-  background-color: var(--color6);
+  background-color: var(--color4);
   color: var(--color1);
-  border: 1px solid rgba(0,0,0,0.5);
+  border: 0.2em solid rgba(0, 0, 0, 0.5);
   padding:0.2em;
+  /*background: repeating-linear-gradient(*/
+  /*  45deg,*/
+  /*  var(--color4),*/
+  /*  var(--color4) 10px,*/
+  /*  var(--color5) 10px,*/
+  /*  var(--color5) 20px*/
+  /*);*/
+}
+.parcel-row:hover {
+  border: 0.2em solid rgba(0, 0, 0, 0.3);
+
+}
+.on-destination {
+  background-color: var(--color6);
 }

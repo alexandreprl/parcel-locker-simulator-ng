@@ -10,7 +10,6 @@
 
     <div
       class="locker"
-      [style.z-index]="yPercent"
       (click)="this.selectLocker(l)"
       [style.left.%]="xPercent"
       [style.top.%]="yPercent"
@@ -46,9 +45,8 @@
     @let xPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.x - this.minX()) / (maxWH);
     @let yPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.y - this.minY()) / (maxWH);
     <!--    <div>-->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="size-6 truck bg-white border"
-         [style.fill]="t.color"
-         [style.z-index]="yPercent"
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="size-6 truck"
+
          [style.left.%]="xPercent"
          [style.top.%]="yPercent">
       <path

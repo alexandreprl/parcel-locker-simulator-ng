@@ -8,8 +8,7 @@ import {CurrencyPipe, DecimalPipe} from '@angular/common';
   selector: 'app-truck-row',
   imports: [
     ParcelRow,
-    CurrencyPipe,
-    DecimalPipe
+    CurrencyPipe
   ],
   templateUrl: './truck-row.html',
   styleUrl: './truck-row.css'

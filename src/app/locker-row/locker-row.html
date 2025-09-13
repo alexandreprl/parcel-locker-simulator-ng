@@ -1,6 +1,6 @@
 <div class="panel locker-panel">
   <div class="header">{{ this.locker.location|uppercase }}</div>
-  <div class="flex space-x-2">
+  <div class="flex space-x-2 flex-col md:flex-row">
     <div class="flex-1">
       <div class="flex flex-col space-y-1 panel slot-panel">
         @for (p of locker.parcels; track p.id) {
@@ -21,12 +21,16 @@
     </div>
     <div class="flex-1 flex flex-col items-stretch">
       @if (locker.trucks.length > 0) {
-        <app-truck-row [truck]="locker.trucks[0]"></app-truck-row>
-        @if (locker.trucks.length > 1) {
-          <div>
-            {{ locker.trucks.length - 1 }} other trucks waiting
-          </div>
+
+        @for (truck of locker.trucks; track truck.id) {
+
+        <app-truck-row [truck]="truck"></app-truck-row>
         }
+<!--        @if (locker.trucks.length > 1) {-->
+<!--          <div>-->
+<!--            {{ locker.trucks.length - 1 }} other trucks waiting-->
+<!--          </div>-->
+<!--        }-->
       }
       @if (locker.warehouse) {
         <button

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 /* You can add global styles to this file, and also import other style files */
 
+
 :root {
   --color1: #46425e;
   --color2: #15788c;
@@ -9,6 +10,9 @@
   --color5: #ffb0a3;
   --color6: #ff6973;
   color: var(--color1);
+  font-family: "Tagesschrift", system-ui;
+  font-weight: 400;
+  font-style: normal;
 }
 
 html, body {
@@ -19,6 +23,12 @@ html, body {
 .panel {
   padding: 0.5em;
   border: solid 3px rgba(0, 0, 0, 0.5);
+  border-radius: 0.5em;
+}
+.panel-w {
+  padding: 0.5em;
+  border: solid 3px rgba(255, 255, 255, 0.5);
+  border-radius: 0.5em;
 }
 .header {
   padding: 0.5em;

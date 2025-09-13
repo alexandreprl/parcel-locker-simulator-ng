@@ -50,7 +50,7 @@ export class LockerRow {
     this.lockerService.addTruck({
       position: this.locker.position,
       color: colors[Math.floor(Math.random() * colors.length)],
-      id: uuid.v4(),
+      id: this.lockerService.popNewTruckId(),
       parcels: [],
       slot: 3
     }, this.locker);

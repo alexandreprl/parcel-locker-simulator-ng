@@ -26,7 +26,7 @@ export class App {
       slot: 3, parcels: [],
       trucks: [
         {
-          id: "0",
+          id: this.lockerService.popNewTruckId(),
           position: firstWarehousePosition,
           color: colors[Math.floor(Math.random() * colors.length)],
           parcels: [],
