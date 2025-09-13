@@ -1,4 +1,4 @@
-import {inject, Injectable, signal} from '@angular/core';
+import {computed, inject, Injectable, signal} from '@angular/core';
 import {MoneyService} from './service/money-service';
 import * as uuid from 'uuid';
 
@@ -50,16 +50,69 @@ export interface Locker {
 
 export interface Parcel {
   id: string;
-  destinationLockerId: string
+  origin: Locker | undefined,
+  destination: Locker | undefined,
 }
 
 export interface Truck {
+  color: string;
   destination?: Locker;
   id: string;
   parcels: Parcel[];
   slot: number;
   position: Position;
 }
+
+export const colors = [
+  "#D4A373", // warm sand
+  "#E6B89C", // peach cream
+  "#C38E70", // cocoa brown
+  "#A97155", // caramel
+  "#FFE8D6", // cream
+  "#F5CAC3", // soft blush
+  "#EDBBB4", // muted rose
+  "#FFDDD2", // warm apricot
+  "#FFD6A5", // peachy glow
+  "#FFB5A7", // dusty pink
+  "#E5989B", // vintage rose
+  "#B5838D", // mauve taupe
+  "#6D6875", // cozy plum
+  "#7E6A9F", // lavender dusk
+  "#C9ADA7", // misty lilac
+  "#DDBEA9", // latte beige
+  "#B08968", // cinnamon
+  "#A98467", // earthy mocha
+  "#9C6644", // spiced brown
+  "#CB997E", // rustic clay
+  "#DDC2A3", // almond cream
+  "#E3D5CA", // oatmeal
+  "#F8EDEB", // pale pink
+  "#EDE7E3", // linen
+  "#DFD3C3", // warm parchment
+  "#F4F1DE", // soft ivory
+  "#FAF3E0", // vanilla
+  "#EDE6DB", // eggshell
+  "#DAD7CD", // soft moss
+  "#A3B18A", // sage green
+  "#588157", // cozy pine
+  "#3A5A40", // forest shade
+  "#344E41", // deep pine
+  "#6A994E", // mossy leaf
+  "#9BC1BC", // mint mist
+  "#A5C9CA", // dusty aqua
+  "#B5D2CB", // pale seafoam
+  "#CCE2CB", // faded green
+  "#AEC5EB", // muted sky
+  "#9FA6A7", // soft gray
+  "#CED4DA", // cloudy mist
+  "#ADB5BD", // stone gray
+  "#495057", // charcoal cozy
+  "#6C757D", // warm slate
+  "#343A40", // deep gray
+  "#432818", // dark cocoa
+  "#99582A", // toffee
+  "#FFE5B4", // soft apricot
+];
 
 @Injectable({
   providedIn: 'root'
@@ -68,6 +121,24 @@ export class LockerService {
   private lockersList = signal<Locker[]>([]);
   private moneyService = inject(MoneyService)
   private onRoadTrucks = signal<Truck[]>([]);
+  private allTrucks = computed(() => {
+    const trucks: Truck[] = []
+    for (const t of this.onRoadTrucks()) {
+      trucks.push(t);
+    }
+    for (const l of this.lockersList()) {
+      for (const truck of l.trucks) {
+        trucks.push(truck);
+      }
+    }
+    return trucks
+  })
+
+  getAllTrucks() {
+    return this.allTrucks();
+  }
+
+
   private time = signal<number>(0);
   private selectedLocker = signal<Locker | undefined>(undefined);
   private availableLockers: Locker[] = [
@@ -256,8 +327,10 @@ export class LockerService {
   private checkSuccessfulParcels() {
     for (const locker of this.lockersList()) {
       for (const parcel of locker.parcels) {
-        if (parcel.destinationLockerId == locker.id && Math.random() * 1 < 0.1) {
-          this.moneyService.add(1)
+        if (parcel.destination == locker && Math.random() * 1 < 0.1) {
+          const distance = parcel.origin?.position.distanceTo(parcel.destination.position);
+          const gain = distance == undefined ? 1 : Math.max(1, distance / 0.3)
+          this.moneyService.add(gain)
           locker.parcels = locker.parcels.filter(p => p != parcel);
         }
       }
@@ -270,16 +343,17 @@ export class LockerService {
           if (!locker.warehouse) {
             let maxNewParcelForLocker = locker.slot - locker.parcels.length;
             // if (locker.trucks.length == 0) {
-              while (maxNewParcelForLocker > 0) {
-                if (Math.random() * 6 < 0.1) {
-                  const newParcel = {
-                    id: uuid.v4(),
-                    destinationLockerId: this.getRandomLockerExcept(locker).id,
-                  }
-                  locker.parcels.push(newParcel)
+            while (maxNewParcelForLocker > 0) {
+              if (Math.random() * 6 < 0.1) {
+                const newParcel = {
+                  id: uuid.v4(),
+                  origin: locker,
+                  destination: this.getRandomLockerExcept(locker),
                 }
-                maxNewParcelForLocker--;
+                locker.parcels.push(newParcel)
               }
+              maxNewParcelForLocker--;
+            }
             // }
           }
         }
@@ -297,27 +371,12 @@ export class LockerService {
     return l
   }
 
-  getDestinationOfParcel(parcel
-                         :
-                         Parcel
-  ) {
-    for (const locker of this.lockersList()) {
-      if (locker.id == parcel.destinationLockerId) {
-        return locker
-      }
-    }
-    return undefined
-  }
-
-  addTruck(truck
-           :
-           Truck
-  ) {
+  addTruck(truck: Truck, locker: Locker) {
     this.lockersList.update(ll => {
-      if (ll.length > 0)
-        ll[0].trucks.push(truck)
-      return ll
+      locker.trucks.push(truck)
+      return [...ll]
     })
+
   }
 
   getOnRoadTrucksOfParcel(parcel
@@ -332,18 +391,6 @@ export class LockerService {
     return undefined
   }
 
-  getAllTrucks() {
-    const trucks: Truck[] = []
-    for (const t of this.onRoadTrucks()) {
-      trucks.push(t);
-    }
-    for (const l of this.lockersList()) {
-      for (const truck of l.trucks) {
-        trucks.push(truck);
-      }
-    }
-    return trucks
-  }
 
   setSelectedLocker(l
                     :
@@ -362,13 +409,13 @@ export class LockerService {
       return;
 
     for (const parcel of truck.parcels) {
-      if (parcel.destinationLockerId == locker.id) {
+      if (parcel.destination == locker) {
 
         if (locker.parcels.length < locker.slot) {
           locker.parcels.push(parcel)
           truck.parcels = truck.parcels.filter(p => p != parcel);
         } else {
-          const replacementParcels = locker.parcels.filter(p => p.destinationLockerId != locker.id);
+          const replacementParcels = locker.parcels.filter(p => p.destination != locker);
           if (replacementParcels.length > 0) {
             const rp = replacementParcels[0];
             locker.parcels.push(parcel)

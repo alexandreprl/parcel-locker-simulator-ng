@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject} from '@angular/core';
+import {Component, computed, effect, inject, signal} from '@angular/core';
 import {Locker, LockerService, Truck} from '../locker-service';
 
 @Component({

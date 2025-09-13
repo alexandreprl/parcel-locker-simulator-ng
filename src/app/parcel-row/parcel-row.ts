@@ -10,9 +10,8 @@ import {Locker, LockerService, Parcel} from "../locker-service";
 export class ParcelRow {
   @Input() parcel!: Parcel;
   private lockerService = inject(LockerService);
-  private destination = computed(() => this.lockerService.getDestinationOfParcel(this.parcel))
   private onDestination = computed(() => {
-    return this.lockerService.getLockerOfParcel(this.parcel) == this.getDestination();
+    return this.lockerService.getLockerOfParcel(this.parcel) == this.parcel.destination;
   })
 
   isOnDestination = () => this.onDestination();
@@ -21,12 +20,8 @@ export class ParcelRow {
     this.lockerService.transfer(this.parcel)
   }
 
-  getDestination(): Locker | undefined {
-    return this.destination()
-  }
-
   getDestinationAsString(): string {
-    const d = this.destination()?.location;
+    const d = this.parcel.destination?.location;
     if (d == undefined)
       return '';
     return d;
@@ -40,6 +35,6 @@ export class ParcelRow {
     const truckOfParcel = this.lockerService.getTruckOfParcel(this.parcel);
     if (truckOfParcel == undefined)
       return false;
-    return this.lockerService.getLockerOfTruck(truckOfParcel) == this.getDestination();
+    return this.lockerService.getLockerOfTruck(truckOfParcel) == this.parcel.destination;
   }
 }

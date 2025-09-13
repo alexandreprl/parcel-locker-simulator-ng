@@ -1,11 +1,11 @@
 @let paddingPercent = 20;
-@let maxWH = Math.max(this.maxX() - this.minX(),this.maxY() - this.minY());
+@let maxWH =  Math.max(this.maxX() - this.minX(), this.maxY() - this.minY());
+
+
 <div class="map">
   @for (l of lockersList; track l.id) {
-    @let
-    xPercent = paddingPercent + (100 - paddingPercent * 2) * (l.position.x - this.minX()) / (maxWH);
-    @let
-    yPercent = paddingPercent + (100 - paddingPercent * 2) * (l.position.y - this.minY()) / (maxWH);
+    @let xPercent = paddingPercent + (100 - paddingPercent * 2) * (l.position.x - this.minX()) / (maxWH);
+    @let yPercent = paddingPercent + (100 - paddingPercent * 2) * (l.position.y - this.minY()) / (maxWH);
 
     <div
       class="locker"
@@ -42,12 +42,11 @@
     </div>
   }
   @for (t of allTrucks; track t.id) {
-    @let
-    xPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.x - this.minX()) / (maxWH);
-    @let
-    yPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.y - this.minY()) / (maxWH);
+    @let xPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.x - this.minY()) / (maxWH);
+    @let yPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.y - this.minY()) / (maxWH);
     <!--    <div>-->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red" class="size-6 truck"
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="size-6 truck bg-white border"
+         [style.fill]="t.color"
          [style.z-index]="yPercent"
          [style.left.%]="xPercent"
          [style.top.%]="yPercent">

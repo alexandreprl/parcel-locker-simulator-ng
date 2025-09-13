@@ -1,5 +1,12 @@
 <div class="flex flex-col  items-center bg-sky-200 mb-1 p-2">
-Truck {{ this.truck.id }} (Usage: {{ this.truck.parcels.length }}/{{ this.truck.slot }}) ({{this.truck.position.x| number : '1.2-2'}}, {{this.truck.position.y| number : '1.2-2'}})
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"  class="size-6 bg-white border" [style.fill]="this.truck.color">
+    <path
+      d="M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM13.5 15h-12v2.625c0 1.035.84 1.875 1.875 1.875h.375a3 3 0 1 1 6 0h3a.75.75 0 0 0 .75-.75V15Z"/>
+    <path
+      d="M8.25 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0ZM15.75 6.75a.75.75 0 0 0-.75.75v11.25c0 .087.015.17.042.248a3 3 0 0 1 5.958.464c.853-.175 1.522-.935 1.464-1.883a18.659 18.659 0 0 0-3.732-10.104 1.837 1.837 0 0 0-1.47-.725H15.75Z"/>
+    <path d="M19.5 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/>
+  </svg>
+Truck (Usage: {{ this.truck.parcels.length }}/{{ this.truck.slot }}) ({{this.truck.position.x| number : '1.2-2'}}, {{this.truck.position.y| number : '1.2-2'}})
 <ul class="flex flex-col justify-start">
   @for (p of truck.parcels; track p.id) {
     <li>
@@ -38,7 +45,7 @@ Truck {{ this.truck.id }} (Usage: {{ this.truck.parcels.length }}/{{ this.truck.
   }
   </div>
 
-  <button class="border hover:bg-emerald-700 cursor-pointer rounded-4xl p-2 bg-emerald-600 text-white shadow shadow-amber-600" (click)="this.deliver()">Deliver</button>
+  <button class="border hover:bg-fuchsia-700 cursor-pointer rounded-4xl p-2 bg-fuchsia-600 text-white shadow shadow-amber-600" (click)="this.deliver()">Deliver</button>
 }
   @if (this.truck.parcels.length>0) {
     <button class="border hover:bg-red-900 cursor-pointer rounded-4xl p-2 bg-red-800 text-white shadow shadow-amber-600" (click)="this.dropContent()">
