@@ -1,4 +1,4 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
+import {computed, inject, Injectable, isDevMode, signal} from '@angular/core';
 import {MoneyService} from './service/money-service';
 import * as uuid from 'uuid';
 
@@ -57,7 +57,7 @@ export interface Parcel {
 
 export interface Truck {
   automaticMode?: boolean;
-  status?: "manual" | "idle" | "on road" | "arrived" |"transferring";
+  status?: "manual" | "idle" | "on road" | "arrived" | "transferring";
   timer?: number;
   routeFrom?: Locker;
   routeTo?: Locker;
@@ -108,56 +108,56 @@ export class LockerService {
   private time = signal<number>(0);
   private selectedLocker = signal<Locker | undefined>(undefined);
   private availableLockers: Locker[] = [
-    { city: "Akikawa", position: new Position(0.79, 0.2) },
-    { city: "Minamishi", position: new Position(0.69, 0.26) },
-    { city: "Takayama", position: new Position(0.55, 0.08) },
-    { city: "Fujisaki", position: new Position(0.05, 0.59) },
-    { city: "Harumura", position: new Position(0.64, 0.83) },
-    { city: "Kitanaka", position: new Position(0.94, 0.29) },
-    { city: "Yoshihama", position: new Position(0.46, 0.02) },
-    { city: "Okutani", position: new Position(0.24, 0.05) },
-    { city: "Nishikawa", position: new Position(0.74, 0.4) },
-    { city: "Morishima", position: new Position(0.81, 0.56) },
-    { city: "Kazehara", position: new Position(0.31, 0.98) },
-    { city: "Tsubakida", position: new Position(0.55, 0.52) },
-    { city: "Hoshizaki", position: new Position(0.4, 0.6) },
-    { city: "Nakayori", position: new Position(0.87, 0.37) },
-    { city: "Akimoto", position: new Position(0.80, 0.03) },
-    { city: "Tokihama", position: new Position(0.91, 0.48) },
-    { city: "Midoriyama", position: new Position(0.57, 0.17) },
-    { city: "Shirosaki", position: new Position(0.38, 0.92) },
-    { city: "Tanabe", position: new Position(0.48, 0.38) },
-    { city: "Uenohara", position: new Position(0.80, 0.95) },
-    { city: "Kumizawa", position: new Position(0.20, 0.75) },
-    { city: "Hayashida", position: new Position(0.82, 0.09) },
-    { city: "Nogizawa", position: new Position(0.42, 0.43) },
-    { city: "Sakuragi", position: new Position(0.02, 0.82) },
-    { city: "Kawamura", position: new Position(0.01, 0.68) },
-    { city: "Isogawa", position: new Position(0.22, 0.92) },
-    { city: "Mashiro", position: new Position(0.34, 0.37) },
-    { city: "Takemura", position: new Position(0.20, 0.82) },
-    { city: "Hinokawa", position: new Position(0.52, 0.99) },
-    { city: "Yamashiro", position: new Position(0.88, 0.23) },
-    { city: "Oshimori", position: new Position(0.18, 0.46) },
-    { city: "Hanazaki", position: new Position(0.08, 0.15) },
-    { city: "Takamori", position: new Position(0.33, 0.48) },
-    { city: "Shirahata", position: new Position(0.07, 0.9) },
-    { city: "Furumori", position: new Position(0.07, 0.08) },
-    { city: "Nagisawa", position: new Position(0.43, 0.72) },
-    { city: "Okazaki", position: new Position(0.1, 0.97) },
-    { city: "Kitano", position: new Position(0.89, 0.16) },
-    { city: "Hoshimura", position: new Position(0.19, 0.57) },
-    { city: "Arakawa", position: new Position(0.73, 0.15) },
-    { city: "Midorikawa", position: new Position(0.55, 0.23) },
-    { city: "Aokita", position: new Position(0.52, 0.30) },
-    { city: "Shigemura", position: new Position(0.43, 0.21) },
-    { city: "Nanahara", position: new Position(0.28, 0.2) },
-    { city: "Tokimori", position: new Position(0.15, 0.26) },
-    { city: "Haruzawa", position: new Position(0.37, 0.8) },
-    { city: "Mizushima", position: new Position(0.67, 0.75) },
-    { city: "Yamanobe", position: new Position(0.32, 0.65) },
-    { city: "Kanezawa", position: new Position(0.7, 0.99) }
-  ].map(({ city, position }) => ({
+    {city: "Akikawa", position: new Position(0.79, 0.2)},
+    {city: "Minamishi", position: new Position(0.69, 0.26)},
+    {city: "Takayama", position: new Position(0.55, 0.08)},
+    {city: "Fujisaki", position: new Position(0.05, 0.59)},
+    {city: "Harumura", position: new Position(0.64, 0.83)},
+    {city: "Kitanaka", position: new Position(0.94, 0.29)},
+    {city: "Yoshihama", position: new Position(0.46, 0.02)},
+    {city: "Okutani", position: new Position(0.24, 0.05)},
+    {city: "Nishikawa", position: new Position(0.74, 0.4)},
+    {city: "Morishima", position: new Position(0.81, 0.56)},
+    {city: "Kazehara", position: new Position(0.31, 0.98)},
+    {city: "Tsubakida", position: new Position(0.55, 0.52)},
+    {city: "Hoshizaki", position: new Position(0.4, 0.6)},
+    {city: "Nakayori", position: new Position(0.87, 0.37)},
+    {city: "Akimoto", position: new Position(0.80, 0.03)},
+    {city: "Tokihama", position: new Position(0.91, 0.48)},
+    {city: "Midoriyama", position: new Position(0.57, 0.17)},
+    {city: "Shirosaki", position: new Position(0.38, 0.92)},
+    {city: "Tanabe", position: new Position(0.48, 0.38)},
+    {city: "Uenohara", position: new Position(0.80, 0.95)},
+    {city: "Kumizawa", position: new Position(0.20, 0.75)},
+    {city: "Hayashida", position: new Position(0.82, 0.09)},
+    {city: "Nogizawa", position: new Position(0.42, 0.43)},
+    {city: "Sakuragi", position: new Position(0.02, 0.82)},
+    {city: "Kawamura", position: new Position(0.01, 0.68)},
+    {city: "Isogawa", position: new Position(0.22, 0.92)},
+    {city: "Mashiro", position: new Position(0.34, 0.37)},
+    {city: "Takemura", position: new Position(0.20, 0.82)},
+    {city: "Hinokawa", position: new Position(0.52, 0.99)},
+    {city: "Yamashiro", position: new Position(0.88, 0.23)},
+    {city: "Oshimori", position: new Position(0.18, 0.46)},
+    {city: "Hanazaki", position: new Position(0.08, 0.15)},
+    {city: "Takamori", position: new Position(0.33, 0.48)},
+    {city: "Shirahata", position: new Position(0.07, 0.9)},
+    {city: "Furumori", position: new Position(0.07, 0.08)},
+    {city: "Nagisawa", position: new Position(0.43, 0.72)},
+    {city: "Okazaki", position: new Position(0.1, 0.97)},
+    {city: "Kitano", position: new Position(0.89, 0.16)},
+    {city: "Hoshimura", position: new Position(0.19, 0.57)},
+    {city: "Arakawa", position: new Position(0.73, 0.15)},
+    {city: "Midorikawa", position: new Position(0.55, 0.23)},
+    {city: "Aokita", position: new Position(0.52, 0.30)},
+    {city: "Shigemura", position: new Position(0.43, 0.21)},
+    {city: "Nanahara", position: new Position(0.28, 0.2)},
+    {city: "Tokimori", position: new Position(0.15, 0.26)},
+    {city: "Haruzawa", position: new Position(0.37, 0.8)},
+    {city: "Mizushima", position: new Position(0.67, 0.75)},
+    {city: "Yamanobe", position: new Position(0.32, 0.65)},
+    {city: "Kanezawa", position: new Position(0.7, 0.99)}
+  ].map(({city, position}) => ({
     id: uuid.v4(),
     location: city,
     parcels: [],
@@ -167,8 +167,8 @@ export class LockerService {
   })).reverse();
 
   private availableWarehouses: Locker[] = [
-    { city: "Warehouse 2", position: new Position(0.57, 0.63), warehouse:true }
-  ].map(({ city, position, warehouse }) => ({
+    {city: "Warehouse 2", position: new Position(0.57, 0.63), warehouse: true}
+  ].map(({city, position, warehouse}) => ({
     id: uuid.v4(),
     location: city,
     parcels: [],
@@ -177,6 +177,7 @@ export class LockerService {
     slot: 1,
     position,
   })).reverse();
+
   getLockersList() {
     return this.lockersList;
   }
@@ -266,11 +267,18 @@ export class LockerService {
   }
 
   transferToFirstTruck(parcel: Parcel) {
-    const firstTruck = this.getTruckOfParcel(parcel)
-    if (firstTruck == undefined) {
+    const locker = this.getLockerOfParcel(parcel)
+    let truck: Truck | undefined;
+    if (locker == undefined) {
+      truck = this.getTruckOfParcel(parcel);
+    } else if (locker.trucks.length > 0) {
+      truck = locker?.trucks[0]
+
+    }
+    if (truck == undefined) {
       return;
     }
-    this.transfer(parcel, firstTruck)
+    this.transfer(parcel, truck)
   }
 
   transfer(parcel: Parcel, truck: Truck) {
@@ -280,7 +288,6 @@ export class LockerService {
 
     if (locker != undefined && locker.trucks.length > 0 && locker.trucks[0].parcels.length < locker.trucks[0].slot) {
       // from locker to truck
-      const truck = locker.trucks[0];
       locker.parcels = locker.parcels.filter(p => p != parcel);
       truck.parcels.push(parcel);
     } else if (truck != undefined && lockerTruck != undefined) {
@@ -502,7 +509,7 @@ export class LockerService {
     for (const truck of this.onRoadTrucks()) {
       if (truck.destination !== undefined) {
         const dir = truck.position.directionTo(truck.destination.position);
-        const speed = 0.002;
+        const speed = isDevMode()?0.1:0.002;
         truck.position = truck.position.add(dir.x * speed, dir.y * speed);
 
         if (truck.position.distanceTo(truck.destination.position) < speed) {
