@@ -2,6 +2,9 @@
   position: relative;
   width: 1000px;
   height: 1000px;
+  background-size: 50px 50px;
+  background-image: radial-gradient(circle, var(--color4) 1px, rgba(0, 0, 0, 0) 1px);
+
   /*aspect-ratio: 3 / 2; !* lock ratio to 3:2 (same as 600x400) *!*/
 }
 
