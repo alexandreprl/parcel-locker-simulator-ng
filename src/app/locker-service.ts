@@ -57,7 +57,7 @@ export interface Parcel {
 
 export interface Truck {
   automaticMode?: boolean;
-  status?: "manual" | "idle" | "on road" | "arrived";
+  status?: "manual" | "idle" | "on road" | "arrived" |"transferring";
   timer?: number;
   routeFrom?: Locker;
   routeTo?: Locker;
@@ -113,7 +113,7 @@ export class LockerService {
     "Kumizawa", "Hayashida", "Nogizawa", "Sakuragi", "Kawamura", "Isogawa", "Mashiro", "Takemura", "Hinokawa", "Yamashiro",
     "Oshimori", "Hanazaki", "Takamori", "Shirahata", "Furumori", "Nagisawa", "Okazaki", "Matsuhara", "Kitano", "Hoshimura",
     "Arakawa", "Midorikawa", "Aokita", "Shigemura", "Nanahara", "Tokimori", "Haruzawa", "Mizushima", "Yamanobe", "Kanezawa"
-  ].map((city, i) => ({
+  ].map((city, _) => ({
     id: uuid.v4(),
     location: city,
     parcels: [],
@@ -455,7 +455,7 @@ export class LockerService {
             });
             truck.destination?.trucks.push(truck);
             truck.status = "arrived";
-            truck.timer = 60;
+            truck.timer = 10;
 
             return lockers
           })
@@ -487,6 +487,13 @@ export class LockerService {
             }
             break;
           case "arrived":
+            if ((truck.timer ?? 0) <= 0) {
+              truck.status = "transferring";
+            } else
+              truck.timer = (truck.timer ?? 0) - 1;
+            break;
+          case "transferring":
+
             // console.log("arrived");
             const locker = this.getLockerOfTruck(truck);
             // console.log("the locker is " + locker?.location);
@@ -515,6 +522,7 @@ export class LockerService {
                 }
               }
             }
+            truck.timer = 10;
             truck.status = "idle";
             break;
         }

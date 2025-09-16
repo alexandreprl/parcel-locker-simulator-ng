@@ -1,6 +1,8 @@
 <div class="panel flex flex-row items-center status-bar">
   <span>Money: {{ ownedMoney|currency }}</span>
-<!--  <button class="button" (click)="this.cheatAddMoney()">Add money</button>-->
+  @if (isDevMode()) {
+  <button class="button" (click)="this.cheatAddMoney()">Add money</button>
+  }
 <div class="flex-1 flex flex-row space-x-2"></div>
   <button
     class="button"

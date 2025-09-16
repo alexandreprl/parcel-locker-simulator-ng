@@ -1,9 +1,7 @@
-import {Component, effect, inject} from '@angular/core';
+import {Component, effect, inject, isDevMode} from '@angular/core';
 import {MoneyService} from '../service/money-service';
 import {CurrencyPipe} from '@angular/common';
-import {colors, Locker, LockerService, Position} from '../locker-service';
-import * as uuid from 'uuid';
-import {firstWarehousePosition} from '../app';
+import {Locker, LockerService} from '../locker-service';
 import {UpgradeService} from '../service/upgrade-service';
 
 
@@ -56,4 +54,6 @@ export class StatusBar {
   allowAutomaticMode() {
     this.upgradeService.unlockAutomaticMode()
   }
+
+  protected readonly isDevMode = isDevMode;
 }
