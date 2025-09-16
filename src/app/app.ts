@@ -39,20 +39,15 @@ export class App {
       origin: undefined,
       destination: undefined,
     }
-    const locker1 = {
-      id: "1",
-      location: 'Akikawa',
-      parcels: [parcel],
-      position: new Position(0.05, 0.2),
-      slot: 1,
-      trucks: []
+    const locker1 = this.lockerService.popAvailableLocker()
+    locker1?.parcels.push(parcel)
+
+    const locker2 = this.lockerService.popAvailableLocker()
+    if (locker1 == undefined || locker2 == undefined) {
+      console.error('Unable to create lockers')
+      return;
     }
-    const locker2 = {
-      id: "2", location: 'Minamishi', parcels: [],
-      position: new Position(0.12, 0.07),
-      slot: 1,
-      trucks: []
-    }
+
     parcel.origin = locker1
     parcel.destination = locker2
     this.lockerService.addLocker(locker1);

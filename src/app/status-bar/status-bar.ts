@@ -31,6 +31,11 @@ export class StatusBar {
     return Math.round(basePrice * Math.pow(1.4, this.lockerService.getLockersList()().length - 2));
   }
 
+  newWarehousePrice() {
+    const basePrice = 4
+    return Math.round(basePrice * Math.pow(1.4, this.lockerService.getLockersList()().length - 2));
+  }
+
   addLocker() {
     const price = this.newLockerPrice()
     if (this.moneyService.getOwned() < price)
@@ -43,8 +48,20 @@ export class StatusBar {
     this.lockerService.addLocker(newLocker);
   }
 
+  addWarehouse() {
+    const price = this.newWarehousePrice()
+    if (this.moneyService.getOwned() < price)
+      return;
+
+    const newLocker: Locker | undefined = this.lockerService.popAvailableWarehouse()
+    if (newLocker == undefined)
+      return;
+    this.moneyService.remove(price);
+    this.lockerService.addLocker(newLocker);
+  }
+
   cheatAddMoney() {
-    this.moneyService.add(1000)
+    this.moneyService.add(10000000000)
   }
 
   automaticModePrice() {
@@ -56,4 +73,13 @@ export class StatusBar {
   }
 
   protected readonly isDevMode = isDevMode;
+
+  cheatAddLockers() {
+    let locker: Locker | undefined;
+    locker = this.lockerService.popAvailableLocker()
+    while (locker != undefined) {
+      this.lockerService.addLocker(locker);
+      locker = this.lockerService.popAvailableLocker()
+    }
+  }
 }
