@@ -4,6 +4,7 @@ import {CurrencyPipe} from '@angular/common';
 import {colors, Locker, LockerService, Position} from '../locker-service';
 import * as uuid from 'uuid';
 import {firstWarehousePosition} from '../app';
+import {UpgradeService} from '../service/upgrade-service';
 
 
 @Component({
@@ -18,6 +19,7 @@ import {firstWarehousePosition} from '../app';
 export class StatusBar {
   private moneyService = inject(MoneyService)
   private lockerService = inject(LockerService)
+  protected upgradeService = inject(UpgradeService)
   ownedMoney = 0;
 
   constructor() {
@@ -45,5 +47,13 @@ export class StatusBar {
 
   cheatAddMoney() {
     this.moneyService.add(1000)
+  }
+
+  automaticModePrice() {
+    return this.upgradeService.getAutomaticModePrice();
+  }
+
+  allowAutomaticMode() {
+    this.upgradeService.unlockAutomaticMode()
   }
 }

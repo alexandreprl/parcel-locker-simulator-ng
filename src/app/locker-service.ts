@@ -56,6 +56,11 @@ export interface Parcel {
 }
 
 export interface Truck {
+  automaticMode?: boolean;
+  status?: "manual" | "idle" | "on road" | "arrived";
+  timer?: number;
+  routeFrom?: Locker;
+  routeTo?: Locker;
   color: string;
   destination?: Locker;
   id: number;
@@ -180,6 +185,7 @@ export class LockerService {
       }
 
       truck.destination = target;
+      truck.status = "on road";
       if (lockerSource !== undefined)
         truck.position = lockerSource.position;
       this.onRoadTrucks.update((trucks: Truck[]) => {
@@ -204,36 +210,6 @@ export class LockerService {
     return this.onRoadTrucks().includes(truck);
   }
 
-  update() {
-    this.time.update(time => time + 1)
-    this.moveTrucks();
-    this.checkSuccessfulParcels()
-    this.addNewParcels()
-  }
-
-  private moveTrucks() {
-    for (const truck of this.onRoadTrucks()) {
-      if (truck.destination !== undefined) {
-        const dir = truck.position.directionTo(truck.destination.position);
-        const speed = 0.002;
-        truck.position = truck.position.add(dir.x * speed, dir.y * speed);
-
-        if (truck.position.distanceTo(truck.destination.position) < speed) {
-          truck.position = truck.destination.position
-          this.lockersList.update((lockers: Locker[]) => {
-
-            this.onRoadTrucks.update((trucks: Truck[]) => {
-              return trucks.filter(t => t.id != truck.id);
-            });
-            truck.destination?.trucks.push(truck);
-
-            return lockers
-          })
-
-        }
-      }
-    }
-  }
 
   transfer(parcel: Parcel) {
     const locker = this.getLockerOfParcel(parcel);
@@ -445,5 +421,108 @@ export class LockerService {
   popNewTruckId() {
     this.lastTruckId++;
     return this.lastTruckId;
+  }
+
+  update() {
+    this.time.update(time => time + 1)
+    this.moveTrucks();
+    this.checkSuccessfulParcels()
+    this.addNewParcels()
+
+    this.updateAutomaticTrucks();
+  }
+
+  private moveTrucks() {
+    for (const truck of this.onRoadTrucks()) {
+      if (truck.destination !== undefined) {
+        const dir = truck.position.directionTo(truck.destination.position);
+        const speed = 0.002;
+        truck.position = truck.position.add(dir.x * speed, dir.y * speed);
+
+        if (truck.position.distanceTo(truck.destination.position) < speed) {
+          truck.position = truck.destination.position
+          this.lockersList.update((lockers: Locker[]) => {
+
+            this.onRoadTrucks.update((trucks: Truck[]) => {
+              return trucks.filter(t => t.id != truck.id);
+            });
+            truck.destination?.trucks.push(truck);
+            truck.status = "arrived";
+            truck.timer = 60;
+
+            return lockers
+          })
+
+        }
+      }
+    }
+  }
+
+  private updateAutomaticTrucks() {
+    for (const truck of this.allTrucks()) {
+
+      if (truck.automaticMode) {
+        switch (truck.status ?? "idle") {
+          case "idle":
+            if ((truck.timer ?? 0) <= 0) {
+              const locker = this.getLockerOfTruck(truck);
+              if (locker != undefined) {
+                if (truck.routeFrom == locker && truck.routeTo != undefined) {
+                  this.goto(truck, truck.routeTo)
+                } else if (truck.routeTo == locker && truck.routeFrom != undefined) {
+                  this.goto(truck, truck.routeFrom)
+                } else if (truck.routeFrom != undefined) {
+                  this.goto(truck, truck.routeFrom)
+                }
+              }
+            } else {
+              truck.timer = (truck.timer ?? 0) - 1;
+            }
+            break;
+          case "arrived":
+            // console.log("arrived");
+            const locker = this.getLockerOfTruck(truck);
+            // console.log("the locker is " + locker?.location);
+            if (locker != undefined) {
+              for (const parcel of truck.parcels) {
+                if (parcel.destination == locker) {
+                  // console.log("transfering because parcel on destination")
+                  this.transfer(parcel)
+                } else if (locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom) {
+                  // console.log("tranferign because warehouse")
+                  this.transfer(parcel)
+
+                }
+              }
+              for (const parcel of locker.parcels) {
+
+                if ((parcel.destination == truck.routeTo && locker != truck.routeTo) || (parcel.destination == truck.routeFrom && locker != truck.routeFrom)) {
+                  // console.log("transfering because parcel goes where I go")
+                  this.transfer(parcel)
+                  // } else if (locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom) {
+                  //   console.log("tranferign because warehouse")
+                  //   this.transfer(parcel)
+                } else if (!locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom) {
+                  // console.log("transfering because I am going to warehouse")
+                  this.transfer(parcel)
+                }
+              }
+            }
+            truck.status = "idle";
+            break;
+        }
+      }
+
+
+    }
+  }
+
+  getLockerFromId(id: string) {
+    for (const locker of this.lockersList()) {
+      if (locker.id == id) {
+        return locker;
+      }
+    }
+    return undefined;
   }
 }
