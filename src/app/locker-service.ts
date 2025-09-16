@@ -607,4 +607,11 @@ export class LockerService {
     return undefined;
   }
 
+  availableWarehousesCount() {
+    return this.availableWarehouses.length
+  }
+
+  availableLockersCount() {
+    return this.availableLockers.length
+  }
 }

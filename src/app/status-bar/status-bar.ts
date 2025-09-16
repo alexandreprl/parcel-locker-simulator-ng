@@ -82,4 +82,12 @@ export class StatusBar {
       locker = this.lockerService.popAvailableLocker()
     }
   }
+
+  newWarehouseAvailable() {
+    return this.lockerService.availableWarehousesCount() >0
+  }
+  newLockerAvailable() {
+    return this.lockerService.availableLockersCount() >0
+
+  }
 }
