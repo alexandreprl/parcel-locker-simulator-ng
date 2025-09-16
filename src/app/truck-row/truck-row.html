@@ -16,7 +16,7 @@
           <app-parcel-row [parcel]="p"></app-parcel-row>
         </div>
       }
-      @for (i of [].constructor(truck.slot - truck.parcels.length); track i) {
+      @for (i of [].constructor(Math.max(0,truck.slot - truck.parcels.length)); track i) {
 
         <div class="slot border border-dashed inline-block"></div>
 

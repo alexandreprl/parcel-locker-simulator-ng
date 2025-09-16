@@ -107,4 +107,6 @@ export class TruckRow {
   deactivateAutomaticMode() {
     this.truck.automaticMode = false
   }
+
+  protected readonly Math = Math;
 }
