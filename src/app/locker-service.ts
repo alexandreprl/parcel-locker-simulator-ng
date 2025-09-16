@@ -210,10 +210,17 @@ export class LockerService {
     return this.onRoadTrucks().includes(truck);
   }
 
+  transferToFirstTruck(parcel: Parcel) {
+    const firstTruck = this.getTruckOfParcel(parcel)
+    if (firstTruck == undefined) {
+      return;
+    }
+    this.transfer(parcel, firstTruck)
+  }
 
-  transfer(parcel: Parcel) {
+  transfer(parcel: Parcel, truck: Truck) {
     const locker = this.getLockerOfParcel(parcel);
-    const truck = this.getTruckOfParcel(parcel);
+    // const truck = this.getTruckOfParcel(parcel);
     const lockerTruck = truck != undefined ? this.getLockerOfTruck(truck) : undefined
 
     if (locker != undefined && locker.trucks.length > 0 && locker.trucks[0].parcels.length < locker.trucks[0].slot) {
@@ -487,10 +494,10 @@ export class LockerService {
               for (const parcel of truck.parcels) {
                 if (parcel.destination == locker) {
                   // console.log("transfering because parcel on destination")
-                  this.transfer(parcel)
+                  this.transfer(parcel, truck)
                 } else if (locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom) {
                   // console.log("tranferign because warehouse")
-                  this.transfer(parcel)
+                  this.transfer(parcel, truck)
 
                 }
               }
@@ -498,13 +505,13 @@ export class LockerService {
 
                 if ((parcel.destination == truck.routeTo && locker != truck.routeTo) || (parcel.destination == truck.routeFrom && locker != truck.routeFrom)) {
                   // console.log("transfering because parcel goes where I go")
-                  this.transfer(parcel)
+                  this.transfer(parcel, truck)
                   // } else if (locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom) {
                   //   console.log("tranferign because warehouse")
                   //   this.transfer(parcel)
                 } else if (!locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom) {
                   // console.log("transfering because I am going to warehouse")
-                  this.transfer(parcel)
+                  this.transfer(parcel, truck)
                 }
               }
             }
@@ -525,4 +532,5 @@ export class LockerService {
     }
     return undefined;
   }
+
 }

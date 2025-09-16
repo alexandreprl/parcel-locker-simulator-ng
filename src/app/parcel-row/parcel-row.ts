@@ -17,7 +17,7 @@ export class ParcelRow {
   isOnDestination = () => this.onDestination();
 
   transfer() {
-    this.lockerService.transfer(this.parcel)
+    this.lockerService.transferToFirstTruck(this.parcel)
   }
 
   getDestinationAsString(): string {
