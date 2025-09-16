@@ -582,7 +582,7 @@ export class LockerService {
                   // } else if (locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom) {
                   //   console.log("tranferign because warehouse")
                   //   this.transfer(parcel)
-                } else if (!locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom) {
+                } else if (!locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom && (truck.routeTo?.warehouse||truck.routeFrom?.warehouse)) {
                   // console.log("transfering because I am going to warehouse")
                   this.transfer(parcel, truck)
                 }
