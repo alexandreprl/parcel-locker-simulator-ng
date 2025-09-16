@@ -1,12 +1,14 @@
 .map {
   position: relative;
-  width: 100%; /* take full parent width */
-  aspect-ratio: 3 / 2; /* lock ratio to 3:2 (same as 600x400) */
+  width: 800px;
+  height: 800px;
+  /*aspect-ratio: 3 / 2; !* lock ratio to 3:2 (same as 600x400) *!*/
 }
 
 .map-panel {
   background-color: var(--color3);
-
+  overflow: scroll;
+  height: 500px;
 }
 
 .truck {
