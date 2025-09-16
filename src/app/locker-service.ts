@@ -113,7 +113,6 @@ export class LockerService {
     {city: "Takayama", position: new Position(0.55, 0.08)},
     {city: "Fujisaki", position: new Position(0.05, 0.59)},
     {city: "Harumura", position: new Position(0.64, 0.83)},
-    {city: "Kitanaka", position: new Position(0.94, 0.29)},
     {city: "Yoshihama", position: new Position(0.46, 0.02)},
     {city: "Okutani", position: new Position(0.24, 0.05)},
     {city: "Nishikawa", position: new Position(0.74, 0.4)},
@@ -135,7 +134,6 @@ export class LockerService {
     {city: "Kawamura", position: new Position(0.01, 0.68)},
     {city: "Isogawa", position: new Position(0.22, 0.92)},
     {city: "Mashiro", position: new Position(0.34, 0.37)},
-    {city: "Takemura", position: new Position(0.20, 0.82)},
     {city: "Hinokawa", position: new Position(0.52, 0.99)},
     {city: "Yamashiro", position: new Position(0.88, 0.23)},
     {city: "Oshimori", position: new Position(0.18, 0.46)},
@@ -167,7 +165,9 @@ export class LockerService {
   })).reverse();
 
   private availableWarehouses: Locker[] = [
-    {city: "Warehouse 2", position: new Position(0.57, 0.63), warehouse: true}
+    {city: "Warehouse 2", position: new Position(0.57, 0.63), warehouse: true},
+    {city: "Warehouse 3", position: new Position(0.20, 0.82), warehouse: true},
+    {city: "Warehouse 4", position: new Position(0.94, 0.29), warehouse: true},
   ].map(({city, position, warehouse}) => ({
     id: uuid.v4(),
     location: city,
@@ -509,7 +509,7 @@ export class LockerService {
     for (const truck of this.onRoadTrucks()) {
       if (truck.destination !== undefined) {
         const dir = truck.position.directionTo(truck.destination.position);
-        const speed = isDevMode()?0.1:0.002;
+        const speed = isDevMode() ? 0.1 : 0.002;
         truck.position = truck.position.add(dir.x * speed, dir.y * speed);
 
         if (truck.position.distanceTo(truck.destination.position) < speed) {
@@ -559,32 +559,24 @@ export class LockerService {
               truck.timer = (truck.timer ?? 0) - 1;
             break;
           case "transferring":
-
-            // console.log("arrived");
             const locker = this.getLockerOfTruck(truck);
-            // console.log("the locker is " + locker?.location);
             if (locker != undefined) {
               for (const parcel of truck.parcels) {
                 if (parcel.destination == locker) {
-                  // console.log("transfering because parcel on destination")
-                  this.transfer(parcel, truck)
+                  // Parcel is on truck and truck is at parcel's destination
+                  this.transferFromTruckToLocker(parcel, truck, locker, true);
                 } else if (locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom) {
-                  // console.log("tranferign because warehouse")
-                  this.transfer(parcel, truck)
-
+                  // Parcel is on truck and truck is at warehouse
+                  this.transferFromTruckToLocker(parcel, truck, locker, false)
                 }
               }
               for (const parcel of locker.parcels) {
-
                 if ((parcel.destination == truck.routeTo && locker != truck.routeTo) || (parcel.destination == truck.routeFrom && locker != truck.routeFrom)) {
-                  // console.log("transfering because parcel goes where I go")
-                  this.transfer(parcel, truck)
-                  // } else if (locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom) {
-                  //   console.log("tranferign because warehouse")
-                  //   this.transfer(parcel)
-                } else if (!locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom && (truck.routeTo?.warehouse||truck.routeFrom?.warehouse)) {
-                  // console.log("transfering because I am going to warehouse")
-                  this.transfer(parcel, truck)
+                  // Parcel is on locker and truck is going to parcel destination
+                  this.transferFromLockerToTruck(parcel, locker, truck, false)
+                } else if (!locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom && (truck.routeTo?.warehouse || truck.routeFrom?.warehouse)) {
+                  // Parcel is on locker, the locker is not a warehouse and the truck is going to a warehouse
+                  this.transferFromLockerToTruck(parcel, locker, truck, false)
                 }
               }
             }
@@ -613,5 +605,45 @@ export class LockerService {
 
   availableLockersCount() {
     return this.availableLockers.length
+  }
+
+  private transferFromTruckToLocker(parcel: Parcel, truck: Truck, locker: Locker, force: boolean) {
+    if (this.lockerHasFreeSlot(locker)) {
+      truck.parcels = truck.parcels.filter(p => p != parcel);
+      locker.parcels.push(parcel)
+    }else if (force) {
+      const replacementParcels = locker.parcels.filter(p => p.destination != parcel.destination);
+      if (replacementParcels.length > 0) {
+        const rp = replacementParcels[0];
+        locker.parcels.push(parcel)
+        truck.parcels = truck.parcels.filter(p => p != parcel)
+        truck.parcels.push(rp);
+        locker.parcels = locker.parcels.filter(p => p != rp);
+      }
+    }
+  }
+
+  private transferFromLockerToTruck(parcel: Parcel, locker: Locker, truck: Truck, force: boolean) {
+    if (this.truckHasFreeSpot(truck)) {
+      locker.parcels = locker.parcels.filter(p=>p!=parcel);
+      truck.parcels.push(parcel)
+    }else if (force) {
+      const replacementParcels = truck.parcels.filter(p => p.destination != parcel.destination);
+      if (replacementParcels.length > 0) {
+        const rp = replacementParcels[0];
+        truck.parcels.push(parcel)
+        locker.parcels = locker.parcels.filter(p => p != parcel)
+        locker.parcels.push(rp);
+        truck.parcels = truck.parcels.filter(p => p != rp);
+      }
+    }
+  }
+
+  private lockerHasFreeSlot(locker: Locker) {
+    return locker.parcels.length < locker.slot;
+  }
+
+  private truckHasFreeSpot(truck: Truck) {
+    return truck.parcels.length < truck.slot;
   }
 }
