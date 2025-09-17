@@ -1,5 +1,6 @@
-import {Component, computed, effect, inject, signal} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {Locker, LockerService, Truck} from '../locker-service';
+import {UiService} from '../service/ui-service';
 
 @Component({
   selector: 'app-map',
@@ -9,9 +10,9 @@ import {Locker, LockerService, Truck} from '../locker-service';
 })
 export class Map {
   private lockerService: LockerService = inject(LockerService);
+  uiService = inject(UiService)
   lockersList: Locker[] = [];
   allTrucks: Truck[] = [];
-  selectedLocker: Locker | undefined;
   minX = () => Math.min(...this.allTrucks.map(t => t.position.x), ...this.lockersList.map(l => l.position.x))
   maxX = () => Math.max(...this.allTrucks.map(t => t.position.x), ...this.lockersList.map(l => l.position.x))
   minY = () => Math.min(...this.allTrucks.map(t => t.position.y), ...this.lockersList.map(l => l.position.y))
@@ -21,13 +22,12 @@ export class Map {
     effect(() => {
       this.lockersList = this.lockerService.getLockersList()();
       this.allTrucks = this.lockerService.getAllTrucks();
-      this.selectedLocker = this.lockerService.getSelectedLocker()
     });
   }
 
   selectLocker(l: Locker) {
 
-    this.lockerService.setSelectedLocker(l)
+    this.uiService.selectLocker(l);
   }
 
   protected readonly Math = Math;

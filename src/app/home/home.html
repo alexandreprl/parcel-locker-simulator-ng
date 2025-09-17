@@ -1,16 +1,20 @@
-<div class="flex flex-col space-y-2">
-<app-status-bar></app-status-bar>
-<div class="flex-1 flex md:flex-row flex-col space-x-2">
-  <div class="flex-1">
-    @if (this.selectedLocker != undefined) {
-      <app-locker-row [locker]="selectedLocker"></app-locker-row>
-    } @else {
-     <div class="text-gray-500 italic text-center">Select locker or warehouse on the map!</div>
-    }
-  </div>
-  <div class="flex-1 max-w-1/2">
-    <app-map></app-map>
+@let selectedLocker = this.uiService.selectedLocker();
 
+<div class="flex flex-col space-y-2">
+  <app-status-bar></app-status-bar>
+  <div class="flex-1 flex md:flex-row flex-col space-x-2">
+    <div class="flex-1">
+      @if (this.uiService.treePanelVisible()) {
+        <app-upgrade-tree></app-upgrade-tree>
+      } @else if (selectedLocker != undefined) {
+        <app-locker-row [locker]="selectedLocker"></app-locker-row>
+      } @else {
+        <div class="text-gray-500 italic text-center">Select locker or warehouse on the map!</div>
+      }
+    </div>
+    <div class="flex-1 max-w-1/2">
+      <app-map></app-map>
+
+    </div>
   </div>
-</div>
 </div>

@@ -31,7 +31,7 @@
 
         }
         <div class="legend relative -translate-x-1/2 ml-2 translate-y-0 text-nowrap block w-fit">
-          @if (this.selectedLocker == l) {
+          @if (this.uiService.selectedLocker() == l) {
             <span class="font-bold">
           {{ l.location }} [{{ l.parcels.length }}/{{ l.slot }}]
           </span>

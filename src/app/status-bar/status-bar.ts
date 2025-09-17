@@ -3,6 +3,8 @@ import {MoneyService} from '../service/money-service';
 import {CurrencyPipe} from '@angular/common';
 import {Locker, LockerService} from '../locker-service';
 import {UpgradeService} from '../service/upgrade-service';
+import {UiService} from '../service/ui-service';
+import {newWarehouse, reduceLockerPrice, reduceWarehousePrice} from '../service/upgrades';
 
 
 @Component({
@@ -19,6 +21,7 @@ export class StatusBar {
   private lockerService = inject(LockerService)
   protected upgradeService = inject(UpgradeService)
   ownedMoney = 0;
+  private uiService = inject(UiService)
 
   constructor() {
     effect(() => {
@@ -28,12 +31,18 @@ export class StatusBar {
 
   newLockerPrice() {
     const basePrice = 4
-    return Math.round(basePrice * Math.pow(1.4, this.lockerService.getLockersList()().length - 2));
+    let price = Math.round(basePrice * Math.pow(1.4, this.lockerService.getLockersList()().length - 2));
+    if (reduceLockerPrice.enabled)
+      price = Math.round(0.7*price)
+    return price
   }
 
   newWarehousePrice() {
     const basePrice = 4
-    return Math.round(basePrice * Math.pow(1.4, this.lockerService.getLockersList()().length - 2));
+    let price = Math.round(basePrice * Math.pow(1.4, this.lockerService.getLockersList()().length - 2));
+    if (reduceWarehousePrice.enabled)
+      price = Math.round(0.7*price)
+    return price
   }
 
   addLocker() {
@@ -64,14 +73,6 @@ export class StatusBar {
     this.moneyService.add(10000000000)
   }
 
-  automaticModePrice() {
-    return this.upgradeService.getAutomaticModePrice();
-  }
-
-  allowAutomaticMode() {
-    this.upgradeService.unlockAutomaticMode()
-  }
-
   protected readonly isDevMode = isDevMode;
 
   cheatAddLockers() {
@@ -90,4 +91,10 @@ export class StatusBar {
     return this.lockerService.availableLockersCount() >0
 
   }
+
+  toggleUpgradeTreePanel() {
+    this.uiService.toggleUpgradeTreePanel();
+  }
+
+  protected readonly newWarehouse = newWarehouse;
 }

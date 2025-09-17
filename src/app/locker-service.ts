@@ -1,6 +1,7 @@
 import {computed, inject, Injectable, isDevMode, signal} from '@angular/core';
 import {MoneyService} from './service/money-service';
 import * as uuid from 'uuid';
+import {fasterTruck1} from './service/upgrades';
 
 export class Position {
   x: number;
@@ -182,9 +183,6 @@ export class LockerService {
     return this.lockersList;
   }
 
-  getSelectedLocker(): Locker | undefined {
-    return this.selectedLocker();
-  }
 
   getOnRoadTrucks() {
     return this.onRoadTrucks;
@@ -509,7 +507,11 @@ export class LockerService {
     for (const truck of this.onRoadTrucks()) {
       if (truck.destination !== undefined) {
         const dir = truck.position.directionTo(truck.destination.position);
-        const speed = isDevMode() ? 0.1 : 0.002;
+        let speed = 0.002;
+        if (isDevMode())
+          speed = 0.1;
+        if (fasterTruck1.enabled)
+          speed *= 2
         truck.position = truck.position.add(dir.x * speed, dir.y * speed);
 
         if (truck.position.distanceTo(truck.destination.position) < speed) {
@@ -611,7 +613,7 @@ export class LockerService {
     if (this.lockerHasFreeSlot(locker)) {
       truck.parcels = truck.parcels.filter(p => p != parcel);
       locker.parcels.push(parcel)
-    }else if (force) {
+    } else if (force) {
       const replacementParcels = locker.parcels.filter(p => p.destination != parcel.destination);
       if (replacementParcels.length > 0) {
         const rp = replacementParcels[0];
@@ -625,9 +627,9 @@ export class LockerService {
 
   private transferFromLockerToTruck(parcel: Parcel, locker: Locker, truck: Truck, force: boolean) {
     if (this.truckHasFreeSpot(truck)) {
-      locker.parcels = locker.parcels.filter(p=>p!=parcel);
+      locker.parcels = locker.parcels.filter(p => p != parcel);
       truck.parcels.push(parcel)
-    }else if (force) {
+    } else if (force) {
       const replacementParcels = truck.parcels.filter(p => p.destination != parcel.destination);
       if (replacementParcels.length > 0) {
         const rp = replacementParcels[0];

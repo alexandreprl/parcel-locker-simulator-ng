@@ -3,9 +3,8 @@ import {colors, Locker, LockerService} from '../locker-service';
 import {ParcelRow} from '../parcel-row/parcel-row';
 import {TruckRow} from '../truck-row/truck-row';
 import {MoneyService} from '../service/money-service';
-import {CurrencyPipe, DecimalPipe, UpperCasePipe} from '@angular/common';
-import {firstWarehousePosition} from '../app';
-import * as uuid from 'uuid';
+import {CurrencyPipe, UpperCasePipe} from '@angular/common';
+import {reduceTruckPrice} from '../service/upgrades';
 
 @Component({
   selector: 'app-locker-row',
@@ -22,13 +21,16 @@ export class LockerRow {
   @Input() locker!: Locker;
   private moneyService = inject(MoneyService)
   private lockerService = inject(LockerService);
+
   constructor() {
 
   }
+
   newSlotPrice() {
     const basePrice = 1
-    return Math.round(basePrice * Math.pow(1.4, this.locker.slot-1));
+    return Math.round(basePrice * Math.pow(1.4, this.locker.slot - 1));
   }
+
   newLockerSlot() {
     const price = this.newSlotPrice()
     if (this.moneyService.getOwned() < price)
@@ -38,8 +40,12 @@ export class LockerRow {
   }
 
   newTruckPrice() {
-    const basePrice = 3
-    return Math.round(basePrice * Math.pow(1.4, this.lockerService.getAllTrucks().length - 1));
+    let basePrice = 3
+
+    let price = Math.round(basePrice * Math.pow(1.4, this.lockerService.getAllTrucks().length - 1));
+    if (reduceTruckPrice.enabled)
+      price = Math.round(0.7 * price)
+    return price
   }
 
   addTruck() {

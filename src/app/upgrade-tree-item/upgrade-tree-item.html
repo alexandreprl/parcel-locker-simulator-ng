@@ -1,0 +1,25 @@
+<li>
+  @if (!this.areDependenciesSatisfied()) {
+    <button class="button button-upgrade cursor-default">
+      Unavailable
+    </button>
+  } @else if (!upgrade.enabled) {
+    <button (click)="this.unlockUpgrade(upgrade)" class="button button-upgrade">
+      {{ upgrade.name }} ({{ upgrade.price|currency }})
+    </button>
+  } @else {
+    <button class="button button-upgrade button-owned cursor-default">
+      {{ upgrade.name }}
+    </button>
+  }
+
+  @let children = this.getChildren();
+  @if (children.length > 0) {
+    <ul>
+      @for (u of children; track u.name) {
+        <app-upgrade-tree-item [upgrade]="u"></app-upgrade-tree-item>
+      }
+    </ul>
+  }
+</li>
+

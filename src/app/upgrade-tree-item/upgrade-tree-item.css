@@ -1,0 +1,51 @@
+.button-upgrade {
+  background-color: transparent;
+  color: var(--color4);
+  border: dashed 1px var(--color4)
+}
+.button-upgrade:hover {
+  border: solid 1px var(--color4)
+}
+
+.button-owned {
+  color: var(--color4);
+  background-color: var(--color1);
+  border: solid 1px var(--color4);
+  cursor: default;
+}
+ul li {
+  margin-left: 15px;
+  position: relative;
+  padding-left: 5px;
+}
+ul li::before {
+  content: " ";
+  position: absolute;
+  width: 1px;
+  background-color: #ffffff;
+  top: 5px;
+  bottom: -12px;
+  left: -10px;
+}
+body > ul > li:first-child::before {top: 12px;}
+ul li:not(:first-child):last-child::before {display: none;}
+ul li:only-child::before {
+  display: list-item;
+  content: " ";
+  position: absolute;
+  width: 1px;
+  background-color: #ffffff;
+  top: 5px;
+  bottom: 7px;
+  height: 7px;
+  left: -10px;
+}
+ul li::after {
+  content: " ";
+  position: absolute;
+  left: -10px;
+  width: 10px;
+  height: 1px;
+  background-color: #ffffff;
+  top: 12px;
+}
