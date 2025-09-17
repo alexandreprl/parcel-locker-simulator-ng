@@ -41,11 +41,18 @@ export const reduceWarehousePrice = {
   price: 100,
   dependencies: [reduceLockerPrice]
 }
+export const reduceAutomaticModeTransferTime = {
+  name: 'Reduce automatic mode transfer time',
+  enabled: false,
+  price: 500,
+  dependencies: [automaticModeUpgrade]
+}
 export const upgrades: Upgrade[] = [
   automaticModeUpgrade,
   fasterTruck1,
   newWarehouse,
   reduceTruckPrice,
   reduceLockerPrice,
-  reduceWarehousePrice
+  reduceWarehousePrice,
+  reduceAutomaticModeTransferTime
 ]

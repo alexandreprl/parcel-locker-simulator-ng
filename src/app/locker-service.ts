@@ -1,7 +1,7 @@
 import {computed, inject, Injectable, isDevMode, signal} from '@angular/core';
 import {MoneyService} from './service/money-service';
 import * as uuid from 'uuid';
-import {fasterTruck1} from './service/upgrades';
+import {fasterTruck1, reduceAutomaticModeTransferTime} from './service/upgrades';
 
 export class Position {
   x: number;
@@ -523,7 +523,7 @@ export class LockerService {
             });
             truck.destination?.trucks.push(truck);
             truck.status = "arrived";
-            truck.timer = 10;
+            truck.timer = (reduceAutomaticModeTransferTime.enabled?0.5:1)*10;
 
             return lockers
           })
@@ -582,7 +582,7 @@ export class LockerService {
                 }
               }
             }
-            truck.timer = 10;
+            truck.timer = (reduceAutomaticModeTransferTime.enabled?0.5:1)*10;
             truck.status = "idle";
             break;
         }
