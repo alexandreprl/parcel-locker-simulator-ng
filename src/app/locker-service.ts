@@ -1,7 +1,7 @@
 import {computed, inject, Injectable, isDevMode, signal} from '@angular/core';
 import {MoneyService} from './service/money-service';
 import * as uuid from 'uuid';
-import {fasterTruck1, reduceAutomaticModeTransferTime} from './service/upgrades';
+import {fasterTruck1, reduceAutomaticModeTransferTime, reduceBeforeCollectTime} from './service/upgrades';
 
 export class Position {
   x: number;
@@ -50,6 +50,7 @@ export interface Locker {
 }
 
 export interface Parcel {
+  status?: "waiting for customer" | "collecting";
   id: number;
   origin: Locker | undefined,
   destination: Locker | undefined,
@@ -290,9 +291,11 @@ export class LockerService {
       truck.parcels.push(parcel);
     } else if (truck != undefined && lockerTruck != undefined) {
       // from truck to locker
+      let hasBeenTransferred = false;
       if (lockerTruck.parcels.length < lockerTruck.slot) {
         truck.parcels = truck.parcels.filter(p => p != parcel);
         lockerTruck.parcels.push(parcel);
+        hasBeenTransferred = true;
       } else if (parcel.destination == lockerTruck) {
         const replacementParcels = lockerTruck.parcels.filter(p => p.destination != lockerTruck);
         if (replacementParcels.length > 0) {
@@ -301,10 +304,17 @@ export class LockerService {
           truck.parcels = truck.parcels.filter(p => p != parcel)
           truck.parcels.push(rp);
           lockerTruck.parcels = lockerTruck.parcels.filter(p => p != rp);
+          hasBeenTransferred = true;
         }
       }
+      if (hasBeenTransferred) {
+        parcel.status = "waiting for customer"
+        let time = 120
+        if (reduceBeforeCollectTime.enabled)
+          time *= 0.5
+        parcel.timer = time;
+      }
 
-      parcel.timer = 0;
     }
   }
 
@@ -360,16 +370,22 @@ export class LockerService {
       for (const parcel of locker.parcels) {
         if (parcel.destination == locker) {
           const timer = (parcel.timer == undefined) ? 0 : parcel.timer;
-          if (Math.random() * 6 < 0.1 && timer == 0) {
-            parcel.timer = 1;
-          } else if (timer > 0) {
-            if (timer >= 30) {
+          if (parcel.status == "waiting for customer") {
+            if (timer <= 0) {
+              parcel.timer = 10;
+              parcel.status = "collecting";
+            } else {
+              parcel.timer = (parcel.timer ?? 1) - 1;
+            }
+          } else if (parcel.status == "collecting") {
+            if (timer <= 0) {
               const distance = parcel.origin?.position.distanceTo(parcel.destination.position);
               const gain = Math.round(distance == undefined ? 1 : Math.max(1, distance / 0.3))
               this.moneyService.add(gain)
               locker.parcels = locker.parcels.filter(p => p != parcel);
+            } else {
+              parcel.timer = (parcel.timer ?? 1) - 1;
             }
-            parcel.timer = parcel.timer == undefined ? 1 : parcel.timer + 1
           }
         }
       }
@@ -523,7 +539,7 @@ export class LockerService {
             });
             truck.destination?.trucks.push(truck);
             truck.status = "arrived";
-            truck.timer = (reduceAutomaticModeTransferTime.enabled?0.5:1)*10;
+            truck.timer = (reduceAutomaticModeTransferTime.enabled ? 0.5 : 1) * 10;
 
             return lockers
           })
@@ -582,7 +598,7 @@ export class LockerService {
                 }
               }
             }
-            truck.timer = (reduceAutomaticModeTransferTime.enabled?0.5:1)*10;
+            truck.timer = (reduceAutomaticModeTransferTime.enabled ? 0.5 : 1) * 10;
             truck.status = "idle";
             break;
         }
