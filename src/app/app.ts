@@ -34,22 +34,20 @@ export class App {
         }
       ]
     });
-    const parcel:Parcel = {
-      id: this.lockerService.popNewParcelId(),
-      origin: undefined,
-      destination: undefined,
-    }
     const locker1 = this.lockerService.popAvailableLocker()
-    locker1?.parcels.push(parcel)
-
     const locker2 = this.lockerService.popAvailableLocker()
     if (locker1 == undefined || locker2 == undefined) {
       console.error('Unable to create lockers')
       return;
     }
+    const parcel:Parcel = {
+      id: this.lockerService.popNewParcelId(),
+      origin: locker1,
+      destination: locker2,
+    }
+    locker1?.parcels.push(parcel)
 
-    parcel.origin = locker1
-    parcel.destination = locker2
+
     this.lockerService.addLocker(locker1);
     this.lockerService.addLocker(locker2);
 

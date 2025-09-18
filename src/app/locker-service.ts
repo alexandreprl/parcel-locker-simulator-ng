@@ -52,12 +52,14 @@ export interface Locker {
 export interface Parcel {
   status?: "waiting for customer" | "collecting";
   id: number;
-  origin: Locker | undefined,
-  destination: Locker | undefined,
+  origin: Locker,
+  destination: Locker,
   timer?: number | 0
 }
 
 export interface Truck {
+  parcelTargetsFilterForward?: Locker[];
+  parcelTargetsFilterBackward?: Locker[];
   automaticMode?: boolean;
   status?: "manual" | "idle" | "on road" | "arrived" | "transferring";
   timer?: number;
@@ -108,7 +110,6 @@ export class LockerService {
 
 
   private time = signal<number>(0);
-  private selectedLocker = signal<Locker | undefined>(undefined);
   private availableLockers: Locker[] = [
     {city: "Akikawa", position: new Position(0.79, 0.2)},
     {city: "Minamishi", position: new Position(0.69, 0.26)},
@@ -274,48 +275,10 @@ export class LockerService {
       truck = locker?.trucks[0]
 
     }
-    if (truck == undefined) {
+    if (truck == undefined || locker == undefined) {
       return;
     }
-    this.transfer(parcel, truck)
-  }
-
-  transfer(parcel: Parcel, truck: Truck) {
-    const locker = this.getLockerOfParcel(parcel);
-    // const truck = this.getTruckOfParcel(parcel);
-    const lockerTruck = truck != undefined ? this.getLockerOfTruck(truck) : undefined
-
-    if (locker != undefined && locker.trucks.length > 0 && locker.trucks[0].parcels.length < locker.trucks[0].slot) {
-      // from locker to truck
-      locker.parcels = locker.parcels.filter(p => p != parcel);
-      truck.parcels.push(parcel);
-    } else if (truck != undefined && lockerTruck != undefined) {
-      // from truck to locker
-      let hasBeenTransferred = false;
-      if (lockerTruck.parcels.length < lockerTruck.slot) {
-        truck.parcels = truck.parcels.filter(p => p != parcel);
-        lockerTruck.parcels.push(parcel);
-        hasBeenTransferred = true;
-      } else if (parcel.destination == lockerTruck) {
-        const replacementParcels = lockerTruck.parcels.filter(p => p.destination != lockerTruck);
-        if (replacementParcels.length > 0) {
-          const rp = replacementParcels[0];
-          lockerTruck.parcels.push(parcel)
-          truck.parcels = truck.parcels.filter(p => p != parcel)
-          truck.parcels.push(rp);
-          lockerTruck.parcels = lockerTruck.parcels.filter(p => p != rp);
-          hasBeenTransferred = true;
-        }
-      }
-      if (hasBeenTransferred) {
-        parcel.status = "waiting for customer"
-        let time = 120
-        if (reduceBeforeCollectTime.enabled)
-          time *= 0.5
-        parcel.timer = time;
-      }
-
-    }
+    this.tryToTransferFromLockerToTruck(parcel, locker, truck, false)
   }
 
   getLockerOfParcel(parcel
@@ -455,49 +418,12 @@ export class LockerService {
   }
 
 
-  setSelectedLocker(l
-                    :
-                    Locker
-  ) {
-    this.selectedLocker.set(l)
-  }
-
   popAvailableLocker() {
     return this.availableLockers.pop();
   }
 
   popAvailableWarehouse() {
     return this.availableWarehouses.pop();
-  }
-
-  deliver(truck
-          :
-          Truck
-  ) {
-    const locker = this.getLockerOfTruck(truck);
-    if (locker == undefined)
-      return;
-
-    for (const parcel of truck.parcels) {
-      if (parcel.destination == locker) {
-
-        if (locker.parcels.length < locker.slot) {
-          locker.parcels.push(parcel)
-          truck.parcels = truck.parcels.filter(p => p != parcel);
-        } else {
-          const replacementParcels = locker.parcels.filter(p => p.destination != locker);
-          if (replacementParcels.length > 0) {
-            const rp = replacementParcels[0];
-            locker.parcels.push(parcel)
-            truck.parcels = truck.parcels.filter(p => p != parcel)
-            truck.parcels.push(rp);
-            locker.parcels = locker.parcels.filter(p => p != rp);
-
-          }
-        }
-
-      }
-    }
   }
 
   popNewParcelId() {
@@ -579,36 +505,55 @@ export class LockerService {
           case "transferring":
             const locker = this.getLockerOfTruck(truck);
             if (locker != undefined) {
+              const truckToLockerCandidates = []
+              const lockerToTruckCandidates = []
               for (const parcel of truck.parcels) {
-                if (parcel.destination == locker) {
-                  // Parcel is on truck and truck is at parcel's destination
-                  this.transferFromTruckToLocker(parcel, truck, locker, true);
-                } else if (locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom) {
-                  // Parcel is on truck and truck is at warehouse
-                  this.transferFromTruckToLocker(parcel, truck, locker, false)
+                if (locker == truck.routeTo && (truck.parcelTargetsFilterForward ?? []).includes(parcel.destination)) {
+                  truckToLockerCandidates.push(parcel)
+                } else if (locker == truck.routeFrom && (truck.parcelTargetsFilterBackward ?? []).includes(parcel.destination)) {
+                  truckToLockerCandidates.push(parcel)
                 }
               }
               for (const parcel of locker.parcels) {
-                if ((parcel.destination == truck.routeTo && locker != truck.routeTo) || (parcel.destination == truck.routeFrom && locker != truck.routeFrom)) {
-                  // Parcel is on locker and truck is going to parcel destination
-                  this.transferFromLockerToTruck(parcel, locker, truck, false)
-                } else if (!locker.warehouse && parcel.destination != truck.routeTo && parcel.destination != truck.routeFrom && (truck.routeTo?.warehouse || truck.routeFrom?.warehouse)) {
-                  // Parcel is on locker, the locker is not a warehouse and the truck is going to a warehouse
-                  this.transferFromLockerToTruck(parcel, locker, truck, false)
+                if (locker == truck.routeFrom && (truck.parcelTargetsFilterForward ?? []).includes(parcel.destination)) {
+                  lockerToTruckCandidates.push(parcel)
+                } else if (locker == truck.routeTo && (truck.parcelTargetsFilterBackward ?? []).includes(parcel.destination)) {
+                  lockerToTruckCandidates.push(parcel)
                 }
               }
+              let swapCount = Math.min(truckToLockerCandidates.length, lockerToTruckCandidates.length)
+
+              while (swapCount > 0) {
+                swapCount--;
+                const truckToLockerParcel = truckToLockerCandidates.pop()
+                const lockerToTruckParcel = lockerToTruckCandidates.pop()
+                if (truckToLockerParcel != undefined && lockerToTruckParcel != undefined) {
+                  this.transferFromTruckToLockerNoCheck(truckToLockerParcel, truck, locker)
+                  this.transferFromLockerToTruckNoCheck(lockerToTruckParcel, truck, locker)
+                }
+              }
+              for (const parcel of truckToLockerCandidates) {
+                this.tryToTransferFromTruckToLocker(parcel, truck, locker, false)
+              }
+              for (const parcel of lockerToTruckCandidates) {
+                this.tryToTransferFromLockerToTruck(parcel, locker, truck, false)
+              }
             }
+
+
             truck.timer = (reduceAutomaticModeTransferTime.enabled ? 0.5 : 1) * 10;
             truck.status = "idle";
             break;
         }
       }
-
-
     }
   }
 
-  getLockerFromId(id: string) {
+
+  getLockerFromId(id
+                  :
+                  string
+  ) {
     for (const locker of this.lockersList()) {
       if (locker.id == id) {
         return locker;
@@ -625,43 +570,80 @@ export class LockerService {
     return this.availableLockers.length
   }
 
-  private transferFromTruckToLocker(parcel: Parcel, truck: Truck, locker: Locker, force: boolean) {
+  private transferFromTruckToLockerNoCheck(parcel: Parcel, truck: Truck, locker: Locker) {
+    truck.parcels = truck.parcels.filter(p => p != parcel);
+    locker.parcels.push(parcel)
+    if (parcel.destination == locker) {
+      parcel.status = "waiting for customer"
+      let time = 60
+      if (reduceBeforeCollectTime.enabled)
+        time *= 0.5
+      parcel.timer = time;
+    }
+  }
+
+  private transferFromLockerToTruckNoCheck(parcel: Parcel, truck: Truck, locker: Locker) {
+    locker.parcels = locker.parcels.filter(p => p != parcel);
+    truck.parcels.push(parcel)
+  }
+
+  private tryToTransferFromTruckToLocker(parcel
+                                         :
+                                         Parcel, truck
+                                         :
+                                         Truck, locker
+                                         :
+                                         Locker, force
+                                         :
+                                         boolean
+  ) {
     if (this.lockerHasFreeSlot(locker)) {
-      truck.parcels = truck.parcels.filter(p => p != parcel);
-      locker.parcels.push(parcel)
+      this.transferFromTruckToLockerNoCheck(parcel, truck, locker)
     } else if (force) {
       const replacementParcels = locker.parcels.filter(p => p.destination != parcel.destination);
       if (replacementParcels.length > 0) {
         const rp = replacementParcels[0];
-        locker.parcels.push(parcel)
-        truck.parcels = truck.parcels.filter(p => p != parcel)
-        truck.parcels.push(rp);
-        locker.parcels = locker.parcels.filter(p => p != rp);
+        this.transferFromTruckToLockerNoCheck(parcel, truck, locker)
+        this.transferFromLockerToTruckNoCheck(rp, truck, locker)
       }
     }
   }
 
-  private transferFromLockerToTruck(parcel: Parcel, locker: Locker, truck: Truck, force: boolean) {
+  private tryToTransferFromLockerToTruck(parcel
+                                         :
+                                         Parcel, locker
+                                         :
+                                         Locker, truck
+                                         :
+                                         Truck, force
+                                         :
+                                         boolean
+  ) {
     if (this.truckHasFreeSpot(truck)) {
-      locker.parcels = locker.parcels.filter(p => p != parcel);
-      truck.parcels.push(parcel)
+      this.transferFromLockerToTruckNoCheck(parcel, truck, locker)
     } else if (force) {
       const replacementParcels = truck.parcels.filter(p => p.destination != parcel.destination);
       if (replacementParcels.length > 0) {
         const rp = replacementParcels[0];
-        truck.parcels.push(parcel)
-        locker.parcels = locker.parcels.filter(p => p != parcel)
-        locker.parcels.push(rp);
-        truck.parcels = truck.parcels.filter(p => p != rp);
+        this.transferFromLockerToTruckNoCheck(parcel, truck, locker)
+        this.transferFromTruckToLockerNoCheck(rp, truck, locker)
       }
     }
   }
 
-  private lockerHasFreeSlot(locker: Locker) {
+  private lockerHasFreeSlot(locker
+                            :
+                            Locker
+  ) {
     return locker.parcels.length < locker.slot;
   }
 
-  private truckHasFreeSpot(truck: Truck) {
+  private truckHasFreeSpot(truck
+                           :
+                           Truck
+  ) {
     return truck.parcels.length < truck.slot;
   }
+
 }
+

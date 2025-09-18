@@ -53,6 +53,12 @@ export const reduceBeforeCollectTime = {
   price: 100,
   dependencies: [fasterTruck1]
 }
+export const allowTwoWayDelivery = {
+  name: 'Allow the trucks to take parcels on their way back',
+  enabled: false,
+  price: 200,
+  dependencies: [automaticModeUpgrade]
+}
 export const upgrades: Upgrade[] = [
   automaticModeUpgrade,
   fasterTruck1,
@@ -61,5 +67,6 @@ export const upgrades: Upgrade[] = [
   reduceLockerPrice,
   reduceWarehousePrice,
   reduceAutomaticModeTransferTime,
-  reduceBeforeCollectTime
+  reduceBeforeCollectTime,
+  allowTwoWayDelivery
 ]

@@ -16,7 +16,7 @@
           <app-parcel-row [parcel]="p"></app-parcel-row>
         </div>
       }
-      @for (i of [].constructor(Math.max(0,this.truck.slot - this.truck.parcels.length)); track i) {
+      @for (i of [].constructor(Math.max(0, this.truck.slot - this.truck.parcels.length)); track i) {
 
         <div class="slot border border-dashed inline-block"></div>
 
@@ -50,54 +50,79 @@
       <div>
 
         @if (this.upgradeService.isAutomaticModeAllowed()) {
-        <div class="slot-panel panel">
-          @if (this.truck.automaticMode) {
-            Automatic route from {{ this.lockerService.getLockerFromId(this.routeFromId)?.location }} to {{ this.lockerService.getLockerFromId(this.routeToId)?.location }}
-            <button class="button2" (click)="this.deactivateAutomaticMode()">
-              Stop
-            </button>
-          } @else {
-            <div class="flex flex-col items-stretch">
-              <div class="font-bold text-center header">Set up automatic route</div>
-<!--              <div>-->
-<!--              Filter-->
-<!--              </div>-->
-              <div>
-
-              From:
-              <select [(ngModel)]="this.routeFromId">
-
-                @for (l of this.getLockersList(); track l.id) {
-                  <option [value]="l.id">
-                    {{ l.location }}
-                  </option>
-                }
-              </select></div>
-              <div>
-              To:
-              <select [(ngModel)]="this.routeToId">
-
-                @for (l of this.getLockersList(); track l.id) {
-                  <option [value]="l.id">
-                    {{ l.location }}
-                  </option>
-                }
-              </select>
-              </div>
-              <button class="button2" (click)="this.activateAutomaticMode()">
-                Go
+          <div class="slot-panel panel">
+            @if (this.truck.automaticMode) {
+              Automatic route from {{ this.lockerService.getLockerFromId(this.routeFromId)?.location }} to {{ this.lockerService.getLockerFromId(this.routeToId)?.location }}
+              <button class="button2" (click)="this.deactivateAutomaticMode()">
+                Stop
               </button>
-            </div>
-          }
-        </div>
-        }@else{
+            } @else {
+              <div class="flex flex-col items-stretch">
+                <div class="font-bold text-center header">Set up automatic route</div>
+                <div>
+                  Take parcels for
+
+                  @for (l of this.getLockersListExceptWarehouse(); track l.id) {
+                    <input type="checkbox" [checked]="this.isCheckedForward(l)" (change)="this.checkForward(l)"
+                           [id]="l.id+'-check-forward'"/>
+                    <label [for]="l.id+'-check-forward'">
+                      {{ l.location }}
+                    </label>
+                  }
+                </div>
+                <div>
+
+                  From:
+                  <select [(ngModel)]="this.routeFromId">
+
+                    @for (l of this.getLockersList(); track l.id) {
+                      <option [value]="l.id">
+                        {{ l.location }}
+                      </option>
+                    }
+                  </select>
+                </div>
+                <div>
+                  To:
+                  <select [(ngModel)]="this.routeToId">
+
+                    @for (l of this.getLockersList(); track l.id) {
+                      <option [value]="l.id">
+                        {{ l.location }}
+                      </option>
+                    }
+                  </select>
+                </div>
+
+                <div>
+                  @if (allowTwoWayDelivery.enabled) {
+                    For the return, take parcels for
+
+                    @for (l of this.getLockersListExceptWarehouse(); track l.id) {
+                      <input type="checkbox" [checked]="this.isCheckedBackward(l)" (change)="this.checkBackward(l)"
+                             [id]="l.id+'-check-backward'"/>
+                      <label [for]="l.id+'-check-backward'">
+                        {{ l.location }}
+                      </label>
+                    }
+                  } @else {
+                    <div class="italic text-gray-400 text-sm block text-center">
+                    Upgrade to also take parcels when returning
+                    </div>
+                  }
+                </div>
+
+                <button class="button2" (click)="this.activateAutomaticMode()">
+                  Go
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
           <div class="italic text-gray-400 text-sm block text-center">
-          Automatic mode unavailable
+            Automatic mode unavailable
           </div>
         }
-
-
-
 
 
       </div>

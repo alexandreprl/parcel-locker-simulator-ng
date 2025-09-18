@@ -1,10 +1,11 @@
-import {Component, computed, inject, Input, Signal} from '@angular/core';
+import {Component, inject, Input} from '@angular/core';
 import {Locker, LockerService, Truck} from "../locker-service";
 import {ParcelRow} from '../parcel-row/parcel-row';
 import {MoneyService} from '../service/money-service';
-import {CurrencyPipe, DecimalPipe} from '@angular/common';
+import {CurrencyPipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {UpgradeService} from '../service/upgrade-service';
+import {allowTwoWayDelivery} from '../service/upgrades';
 
 @Component({
   selector: 'app-truck-row',
@@ -24,11 +25,14 @@ export class TruckRow {
   automaticMode: boolean = false;
   routeFromId: string = "";
   routeToId: string = "";
+  private checkedLockersForward: Locker[] = [];
+  private checkedLockersBackward: Locker[] = [];
 
   ngOnInit(): void {
     this.routeFromId = this.truck.routeFrom?.id ?? "";
     this.routeToId = this.truck.routeTo?.id ?? "";
-
+    this.checkedLockersForward = [...this.truck.parcelTargetsFilterForward ?? []]
+    this.checkedLockersBackward = [...this.truck.parcelTargetsFilterBackward ?? []]
   }
 
   updateAutomaticMode(evt: Event) {
@@ -84,19 +88,14 @@ export class TruckRow {
     this.truck.slot++;
   }
 
-  dropContent() {
-    this.truck.parcels = []
-  }
-
-  deliver() {
-    this.lockerService.deliver(this.truck)
-  }
-
   activateAutomaticMode() {
 
     this.truck.routeFrom = this.lockerService.getLockerFromId(this.routeFromId)
     this.truck.routeTo = this.lockerService.getLockerFromId(this.routeToId)
-    if (this.truck.routeFrom != undefined && this.truck.routeTo != undefined && this.truck.routeTo != this.truck.routeFrom) {
+    this.truck.parcelTargetsFilterForward = [...this.checkedLockersForward]
+    this.truck.parcelTargetsFilterBackward = [...this.checkedLockersBackward]
+
+    if (this.truck.parcelTargetsFilterForward.length != 0 && this.truck.routeFrom != undefined && this.truck.routeTo != undefined && this.truck.routeTo != this.truck.routeFrom) {
       this.truck.automaticMode = true;
       this.truck.timer = 3;
       this.truck.status = "idle";
@@ -109,4 +108,32 @@ export class TruckRow {
   }
 
   protected readonly Math = Math;
+
+  isCheckedForward(l: Locker) {
+    return this.checkedLockersForward.includes(l)
+  }
+
+  checkForward(l: Locker) {
+    if (!this.isCheckedForward(l))
+      this.checkedLockersForward.push(l)
+    else
+      this.checkedLockersForward = this.checkedLockersForward.filter(l => l != l)
+  }
+
+  isCheckedBackward(l: Locker) {
+    return this.checkedLockersBackward.includes(l)
+  }
+
+  checkBackward(l: Locker) {
+    if (!this.isCheckedForward(l))
+      this.checkedLockersBackward.push(l)
+    else
+      this.checkedLockersBackward = this.checkedLockersBackward.filter(l => l != l)
+  }
+
+  getLockersListExceptWarehouse() {
+    return this.getLockersList().filter(l => !l.warehouse)
+  }
+
+  protected readonly allowTwoWayDelivery = allowTwoWayDelivery;
 }
