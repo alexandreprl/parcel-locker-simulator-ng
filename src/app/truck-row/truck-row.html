@@ -7,16 +7,16 @@
     <!--      d="M8.25 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0ZM15.75 6.75a.75.75 0 0 0-.75.75v11.25c0 .087.015.17.042.248a3 3 0 0 1 5.958.464c.853-.175 1.522-.935 1.464-1.883a18.659 18.659 0 0 0-3.732-10.104 1.837 1.837 0 0 0-1.47-.725H15.75Z"/>-->
     <!--    <path d="M19.5 19.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0Z"/>-->
     <!--  </svg>-->
-    <span class="text-nowrap">Truck #{{ truck.id }}</span>
+    <span class="text-nowrap">Truck #{{ this.truck.id }}</span>
   </div>
   <div class="flex flex-col space-y-2">
     <div class="flex flex-col space-y-2 panel-w slot-panel">
-      @for (p of truck.parcels; track p.id) {
+      @for (p of this.truck.parcels; track p.id) {
         <div class="slot">
           <app-parcel-row [parcel]="p"></app-parcel-row>
         </div>
       }
-      @for (i of [].constructor(Math.max(0,truck.slot - truck.parcels.length)); track i) {
+      @for (i of [].constructor(Math.max(0,this.truck.slot - this.truck.parcels.length)); track i) {
 
         <div class="slot border border-dashed inline-block"></div>
 
@@ -48,6 +48,7 @@
         }
       </div>
       <div>
+
         @if (this.upgradeService.isAutomaticModeAllowed()) {
         <div class="slot-panel panel">
           @if (this.truck.automaticMode) {
@@ -58,7 +59,11 @@
           } @else {
             <div class="flex flex-col items-stretch">
               <div class="font-bold text-center header">Set up automatic route</div>
+<!--              <div>-->
+<!--              Filter-->
+<!--              </div>-->
               <div>
+
               From:
               <select [(ngModel)]="this.routeFromId">
 
@@ -90,6 +95,11 @@
           Automatic mode unavailable
           </div>
         }
+
+
+
+
+
       </div>
 
       <!--  <button class="button2" (click)="this.deliver()">Deliver</button>-->

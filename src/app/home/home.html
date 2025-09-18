@@ -1,4 +1,5 @@
 @let selectedLocker = this.uiService.selectedLocker();
+@let selectedTruck = this.uiService.selectedTruck();
 
 <div class="flex flex-col space-y-2">
   <app-status-bar></app-status-bar>
@@ -8,6 +9,8 @@
         <app-upgrade-tree></app-upgrade-tree>
       } @else if (selectedLocker != undefined) {
         <app-locker-row [locker]="selectedLocker"></app-locker-row>
+      } @else if (selectedTruck != undefined) {
+        <app-truck-row [truck]="selectedTruck"></app-truck-row>
       } @else {
         <div class="text-gray-500 italic text-center">Select locker or warehouse on the map!</div>
       }

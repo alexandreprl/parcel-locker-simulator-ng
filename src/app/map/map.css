@@ -18,7 +18,7 @@
   position: absolute;
   transform: translate(100%, 0%); /* center the square on the position */
   /*border: 1px solid #333;*/
-  pointer-events: none;
+
   z-index: 10;
   background-color: var(--color1);
   border-radius: 0.3em;

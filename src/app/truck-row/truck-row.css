@@ -1,6 +1,9 @@
 .truck-panel {
-background-color: var(--color1);
-}
+  background-color: var(--color1);
+
+    color: var(--color4);
+  }
+
 
 .slot-panel {
   background-color: var(--color2);

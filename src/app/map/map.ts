@@ -30,5 +30,10 @@ export class Map {
     this.uiService.selectLocker(l);
   }
 
+  selectTruck(t: Truck) {
+
+    this.uiService.selectTruck(t);
+  }
+
   protected readonly Math = Math;
 }
