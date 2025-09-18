@@ -267,18 +267,19 @@ export class LockerService {
   }
 
   transferToFirstTruck(parcel: Parcel) {
-    const locker = this.getLockerOfParcel(parcel)
+    let locker = this.getLockerOfParcel(parcel)
     let truck: Truck | undefined;
     if (locker == undefined) {
       truck = this.getTruckOfParcel(parcel);
+      if (truck != undefined) {
+        locker = this.getLockerOfTruck(truck)
+        if (locker != undefined)
+          this.tryToTransferFromTruckToLocker(parcel, truck, locker, true)
+      }
     } else if (locker.trucks.length > 0) {
       truck = locker?.trucks[0]
-
+      this.tryToTransferFromLockerToTruck(parcel, locker, truck, false)
     }
-    if (truck == undefined || locker == undefined) {
-      return;
-    }
-    this.tryToTransferFromLockerToTruck(parcel, locker, truck, false)
   }
 
   getLockerOfParcel(parcel

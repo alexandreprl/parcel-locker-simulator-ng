@@ -1,5 +1,5 @@
 import {Component, computed, inject, Input} from '@angular/core';
-import {Locker, LockerService, Parcel} from "../locker-service";
+import {LockerService, Parcel} from "../locker-service";
 
 @Component({
   selector: 'app-parcel-row',
