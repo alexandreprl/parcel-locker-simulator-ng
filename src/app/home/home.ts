@@ -8,6 +8,7 @@ import {Map} from '../map/map';
 import {UiService} from '../service/ui-service';
 import {UpgradeTree} from '../upgrade-tree/upgrade-tree';
 import {TruckRow} from '../truck-row/truck-row';
+import {TrucksList} from '../trucks-list/trucks-list';
 
 @Component({
   selector: 'app-home',
@@ -16,7 +17,8 @@ import {TruckRow} from '../truck-row/truck-row';
     StatusBar,
     Map,
     UpgradeTree,
-    TruckRow
+    TruckRow,
+    TrucksList
   ],
   templateUrl: './home.html',
   styleUrl: './home.css'

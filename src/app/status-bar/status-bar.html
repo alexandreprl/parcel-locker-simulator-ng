@@ -1,24 +1,28 @@
 <div class="panel flex flex-row items-center status-bar">
   <span>Money: {{ ownedMoney|currency }}</span>
   @if (isDevMode()) {
-  <button class="button" (click)="this.cheatAddMoney()">Add money</button>
-  <button class="button" (click)="this.cheatAddLockers()">Buy all lockers</button>
+    <button class="button" (click)="this.cheatAddMoney()">Add money</button>
+    <button class="button" (click)="this.cheatAddLockers()">Buy all lockers</button>
   }
-<div class="flex-1 flex flex-row space-x-2"></div>
-  <button (click)="this.toggleUpgradeTreePanel()" class="button">
-    Upgrades
-  </button>
-  @if (this.newLockerAvailable()){
-  <button
-    class="button"
-    (click)="this.addLocker()">New locker ({{ this.newLockerPrice()|currency }})
-  </button>
-  }
-  @if (this.newWarehouseAvailable() && newWarehouse.enabled){
-  <button
-    class="button"
-    (click)="this.addWarehouse()">New warehouse ({{ this.newWarehousePrice()|currency }})
-  </button>
-  }
+  <div class="flex-1 flex flex-row space-x-2 justify-end">
+    <button (click)="this.toggleUpgradeTreePanel()" class="button">
+      Upgrades
+    </button>
+    <button (click)="this.toggleAllTrucksPanel()" class="button">
+      Trucks
+    </button>
+    @if (this.newLockerAvailable()) {
+      <button
+        class="button"
+        (click)="this.addLocker()">New locker ({{ this.newLockerPrice()|currency }})
+      </button>
+    }
+    @if (this.newWarehouseAvailable() && newWarehouse.enabled) {
+      <button
+        class="button"
+        (click)="this.addWarehouse()">New warehouse ({{ this.newWarehousePrice()|currency }})
+      </button>
+    }
+  </div>
 
 </div>

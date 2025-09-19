@@ -95,6 +95,10 @@ export class StatusBar {
   toggleUpgradeTreePanel() {
     this.uiService.toggleUpgradeTreePanel();
   }
+  toggleAllTrucksPanel() {
+    this.uiService.toggleAllTrucksPanel();
+  }
+
 
   protected readonly newWarehouse = newWarehouse;
 }

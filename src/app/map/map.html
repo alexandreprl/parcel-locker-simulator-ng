@@ -44,12 +44,13 @@
     @for (t of allTrucks; track t.id) {
       @let xPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.x - this.minX()) / (maxWH);
       @let yPercent = paddingPercent + (100 - paddingPercent * 2) * (t.position.y - this.minY()) / (maxWH);
+      @let classes = this.uiService.isSelected(t)?"cursor-pointer truck selected":"cursor-pointer truck";
       <div (click)="this.selectTruck(t)"
-           class=" cursor-pointer truck"
+           [class]="classes"
            [style.left.%]="xPercent"
            [style.top.%]="yPercent">
         <svg
-          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="size-6 truck">
+          xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="size-6">
           <path
             d="M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V6.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM13.5 15h-12v2.625c0 1.035.84 1.875 1.875 1.875h.375a3 3 0 1 1 6 0h3a.75.75 0 0 0 .75-.75V15Z"/>
           <path
