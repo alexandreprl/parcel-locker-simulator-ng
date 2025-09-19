@@ -9,6 +9,7 @@ import {UiService} from '../service/ui-service';
 import {UpgradeTree} from '../upgrade-tree/upgrade-tree';
 import {TruckRow} from '../truck-row/truck-row';
 import {TrucksList} from '../trucks-list/trucks-list';
+import {LockersList} from '../lockers-list/lockers-list';
 
 @Component({
   selector: 'app-home',
@@ -18,7 +19,8 @@ import {TrucksList} from '../trucks-list/trucks-list';
     Map,
     UpgradeTree,
     TruckRow,
-    TrucksList
+    TrucksList,
+    LockersList
   ],
   templateUrl: './home.html',
   styleUrl: './home.css'

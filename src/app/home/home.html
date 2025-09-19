@@ -5,7 +5,9 @@
   <app-status-bar></app-status-bar>
   <div class="flex-1 flex md:flex-row flex-col space-x-2">
     <div class="flex-1">
-      @if (this.uiService.allTrucksPanelVisible()) {
+      @if (this.uiService.allLockersPanelVisible()) {
+        <app-lockers-list></app-lockers-list>
+      } @else if (this.uiService.allTrucksPanelVisible()) {
         <app-trucks-list></app-trucks-list>
       } @else if (this.uiService.treePanelVisible()) {
         <app-upgrade-tree></app-upgrade-tree>

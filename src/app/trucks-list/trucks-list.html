@@ -1,0 +1,18 @@
+<div class="panel truck-panel">
+  <div class="header">Trucks</div>
+
+
+  <div class="flex flex-col space-y-2">
+    @for (truck of this.getAllTrucks(); track truck.id) {
+      <div class="truck button" (click)="this.selectTruck(truck)">
+        Truck {{ truck.id }}
+        <div class="italic text-gray-400 text-sm">
+          @if (truck.automaticMode) {
+            Automatic route from {{ truck.routeFrom?.location }} to {{ truck.routeTo?.location }}
+          }
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

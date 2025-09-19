@@ -98,6 +98,9 @@ export class StatusBar {
   toggleAllTrucksPanel() {
     this.uiService.toggleAllTrucksPanel();
   }
+  toggleAllLockersPanel() {
+    this.uiService.toggleAllLockersPanel();
+  }
 
 
   protected readonly newWarehouse = newWarehouse;

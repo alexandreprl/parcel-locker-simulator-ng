@@ -1,0 +1,11 @@
+<div class="panel locker-panel">
+  <div class="header">Lockers</div>
+
+  <div class="flex flex-col space-y-2">
+    @for (l of this.getAllLockers(); track l.id) {
+      <div class="locker button" (click)="this.selectLocker(l)">
+        {{ l.location }}
+      </div>
+    }
+  </div>
+</div>

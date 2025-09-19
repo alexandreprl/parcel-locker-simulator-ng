@@ -5,6 +5,7 @@ import {TruckRow} from '../truck-row/truck-row';
 import {MoneyService} from '../service/money-service';
 import {CurrencyPipe, UpperCasePipe} from '@angular/common';
 import {reduceTruckPrice} from '../service/upgrades';
+import {UiService} from '../service/ui-service';
 
 @Component({
   selector: 'app-locker-row',
@@ -21,6 +22,7 @@ export class LockerRow {
   @Input() locker!: Locker;
   private moneyService = inject(MoneyService)
   private lockerService = inject(LockerService);
+  uiService = inject(UiService)
 
   constructor() {
 
